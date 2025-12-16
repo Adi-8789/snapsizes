@@ -1,20 +1,18 @@
-import { useState } from "react";
-import CropTool from "../tools/CropTool";
-
-export default function ImageUpload() {
-  const [image, setImage] = useState(null);
-
+export default function ImageUpload({ onImageSelect }) {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setImage(URL.createObjectURL(file));
+
+    const imageUrl = URL.createObjectURL(file);
+    onImageSelect(imageUrl);
   };
 
   return (
     <section>
       <input type="file" accept="image/*" onChange={handleImageUpload} />
-
-      {image && <CropTool image={image} />}
+      <p className="tool-subtitle">
+        JPG, PNG supported · No upload limits · Free to use
+      </p>
     </section>
   );
 }

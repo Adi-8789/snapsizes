@@ -1,112 +1,69 @@
-import { useRef, useState, useEffect } from "react";
-import Cropper from "react-cropper";
-import { SOCIAL_SIZES } from "../utils/sizes";
+import { useState, useRef } from "react";
+import Controls from "./Controls";
+import Preview from "./Preview";
+
+const RATIOS = [
+  { label: "Free", value: null },
+  { label: "1:1", value: 1 },
+  { label: "4:5", value: 4 / 5 },
+  { label: "9:16", value: 9 / 16 },
+  { label: "16:9", value: 16 / 9 },
+  { label: "1.91:1", value: 1.91 },
+];
+
+const PRESETS = [
+  { key: "yt", label: "YouTube Shorts", ratio: 9 / 16, fitMode: "fit", background: "blur" },
+  { key: "ig-story", label: "Instagram Story", ratio: 9 / 16, fitMode: "fit", background: "black" },
+  { key: "ig-post", label: "Instagram Post", ratio: 1, fitMode: "fill", background: "black" },
+  { key: "linkedin", label: "LinkedIn Post", ratio: 1.91, fitMode: "fill", background: "black" },
+  { key: "x", label: "X (Twitter)", ratio: 16 / 9, fitMode: "fill", background: "black" },
+];
 
 export default function CropTool({ image }) {
-  const cropperRef = useRef(null);
-  const [active, setActive] = useState(SOCIAL_SIZES[0]);
+  const [fitMode, setFitMode] = useState("fill");
+  const [background, setBackground] = useState("black");
+  const [ratio, setRatio] = useState(9 / 16);
 
-  // Group sizes by platform (PRO UI)
-  const groupedSizes = SOCIAL_SIZES.reduce((acc, size) => {
-    acc[size.platform] = acc[size.platform] || [];
-    acc[size.platform].push(size);
-    return acc;
-  }, {});
+  // 🔒 Original state (never changes)
+  const original = useRef({
+    fitMode: "fill",
+    background: "black",
+    ratio: 9 / 16,
+  });
 
-  // 🔥 FIX: reset crop box when aspect ratio changes
-  useEffect(() => {
-    const cropper = cropperRef.current?.cropper;
-    if (!cropper) return;
-
-    cropper.setAspectRatio(active.width / active.height);
-    cropper.reset();
-  }, [active]);
-
-  const downloadOne = (size) => {
-    const cropper = cropperRef.current?.cropper;
-    if (!cropper) return;
-
-    const canvas = cropper.getCroppedCanvas({
-      width: size.width,
-      height: size.height,
-      imageSmoothingQuality: "high",
-    });
-
-    if (!canvas) return;
-
-    const link = document.createElement("a");
-    link.download = `snapsizes-${size.name
-      .replace(/\s+/g, "-")
-      .toLowerCase()}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+  const applyPreset = (p) => {
+    setFitMode(p.fitMode);
+    setBackground(p.background);
+    setRatio(p.ratio);
   };
 
-  const downloadAll = () => {
-    SOCIAL_SIZES.forEach((size) => downloadOne(size));
+  const resetToOriginal = () => {
+    setFitMode(original.current.fitMode);
+    setBackground(original.current.background);
+    setRatio(original.current.ratio);
   };
 
   return (
-    <div style={{ marginTop: "24px" }}>
-      {/* SIZE SELECTOR */}
-      <div style={{ marginBottom: "16px" }}>
-        {Object.entries(groupedSizes).map(([platform, sizes]) => (
-          <div key={platform} style={{ marginBottom: "10px" }}>
-            <strong>{platform}</strong>
-            <div
-              style={{
-                display: "flex",
-                gap: "6px",
-                flexWrap: "wrap",
-                marginTop: "6px",
-              }}
-            >
-              {sizes.map((size) => (
-                <button
-                  key={size.name}
-                  onClick={() => setActive(size)}
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    border: "1px solid #ddd",
-                    cursor: "pointer",
-                    background:
-                      active.name === size.name ? "#111" : "#fff",
-                    color:
-                      active.name === size.name ? "#fff" : "#111",
-                  }}
-                >
-                  {size.ratio}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* CROPPER */}
-      <Cropper
-        src={image}
-        style={{ height: 420, width: "100%" }}
-        viewMode={1}
-        guides
-        ref={cropperRef}
+    <>
+      <Controls
+        fitMode={fitMode}
+        setFitMode={setFitMode}
+        background={background}
+        setBackground={setBackground}
+        ratio={ratio}
+        setRatio={setRatio}
+        ratios={RATIOS}
+        presets={PRESETS}
+        onPreset={applyPreset}
+        onReset={resetToOriginal}
       />
 
-      {/* ACTIONS */}
-      <div
-        style={{
-          marginTop: "14px",
-          display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button onClick={() => downloadOne(active)}>
-          Download {active.name}
-        </button>
-        <button onClick={downloadAll}>Download All Sizes</button>
-      </div>
-    </div>
+      <Preview
+        image={image}
+        fitMode={fitMode}
+        background={background}
+        ratio={ratio}
+      />
+    </>
   );
 }
