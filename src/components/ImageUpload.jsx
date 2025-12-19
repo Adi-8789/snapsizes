@@ -1,44 +1,37 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import styles from "./ImageUpload.module.css";
 
 export default function ImageUpload({ onImageSelect }) {
   const inputRef = useRef(null);
-  const [fileName, setFileName] = useState("");
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
 
-    setFileName(file.name);
-    const imageUrl = URL.createObjectURL(file);
-    onImageSelect(imageUrl);
+    const reader = new FileReader();
+    reader.onload = () => {
+      onImageSelect(reader.result); // ✅ STRING
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
-    <div className="upload-box">
+    <div className={styles.uploadBox}>
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
-        onChange={handleFileChange}
+        accept="image/png, image/jpeg"
         hidden
+        onChange={handleFileChange}
       />
 
-      <button
-        type="button"
-        className="upload-area"
-        onClick={() => inputRef.current.click()}
+      <div
+        className={styles.dropArea}
+        onClick={() => inputRef.current?.click()}
       >
-        <div className="upload-icon">📁</div>
-
-        <div className="upload-text">
-          <strong>
-            {fileName ? "Image Selected" : "Choose an image"}
-          </strong>
-          <span>
-            {fileName || "PNG, JPG, JPEG supported"}
-          </span>
-        </div>
-      </button>
+        <strong>Upload Image</strong>
+        <span>PNG or JPG · Single image only</span>
+      </div>
     </div>
   );
 }

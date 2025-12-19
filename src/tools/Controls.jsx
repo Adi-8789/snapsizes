@@ -1,59 +1,81 @@
-import styles from "./Tool.module.css";
+import { useState, useMemo } from "react";
+import styles from "./Controls.styles.module.css";
+import { PLATFORM_PRESETS } from "../data/platformPresets";
 
 export default function Controls({
   fitMode,
   setFitMode,
   background,
   setBackground,
-  ratio,
-  setRatio,
-  ratios,
-  presets,
   onPreset,
-  onReset,
+  activePresetKey,
 }) {
+  const [openPlatform, setOpenPlatform] = useState(null);
+
+  // ✅ memoized grouping (NO render-time mutation)
+  const grouped = useMemo(() => {
+    if (!Array.isArray(PLATFORM_PRESETS)) return [];
+    return PLATFORM_PRESETS;
+  }, []);
+
   return (
     <div className={styles.controls}>
-      {/* Presets */}
-      <div className={styles.controlGroup}>
-        <span className={styles.label}>Presets</span>
-        <div className={styles.toggleRow}>
-          {presets.map((p) => (
-            <button key={p.key} onClick={() => onPreset(p)}>
-              {p.label}
-            </button>
-          ))}
-          <button onClick={onReset}>Reset</button>
-        </div>
-      </div>
+      {/* PLATFORM ACCORDIONS */}
+      {grouped.map((group) => {
+        const isOpen = openPlatform === group.platform;
 
-      {/* Aspect Ratio */}
-      <div className={styles.controlGroup}>
-        <span className={styles.label}>Aspect Ratio</span>
-        <div className={styles.toggleRow}>
-          {ratios.map((r) => (
+        return (
+          <div key={group.platform} className={styles.group}>
+            {/* HEADER */}
             <button
-              key={r.label}
-              className={ratio === r.value ? styles.active : ""}
-              onClick={() => setRatio(r.value)}
+              type="button"
+              className={styles.accordionHeader}
+              onClick={() =>
+                setOpenPlatform(isOpen ? null : group.platform)
+              }
             >
-              {r.label}
+              <span>{group.platform}</span>
+              <span className={styles.icon}>{isOpen ? "−" : "+"}</span>
             </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Fit Mode */}
-      <div className={styles.controlGroup}>
-        <span className={styles.label}>Fit Mode</span>
+            {/* BODY */}
+            {isOpen && (
+              <div className={styles.presetRow}>
+                {group.items.map((p) => {
+                  const isActive = activePresetKey === p.key;
+
+                  return (
+                    <button
+                      key={p.key}
+                      type="button"
+                      className={`${styles.presetBtn} ${
+                        isActive ? styles.active : ""
+                      }`}
+                      onClick={() => onPreset(p)}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* FIT MODE */}
+      <div className={styles.group}>
+        <h4>Fit Mode</h4>
         <div className={styles.toggleRow}>
           <button
+            type="button"
             className={fitMode === "fill" ? styles.active : ""}
             onClick={() => setFitMode("fill")}
           >
             Fill
           </button>
           <button
+            type="button"
             className={fitMode === "fit" ? styles.active : ""}
             onClick={() => setFitMode("fit")}
           >
@@ -62,29 +84,21 @@ export default function Controls({
         </div>
       </div>
 
-      {/* Background */}
+      {/* BACKGROUND */}
       {fitMode === "fit" && (
-        <div className={styles.controlGroup}>
-          <span className={styles.label}>Background</span>
+        <div className={styles.group}>
+          <h4>Background</h4>
           <div className={styles.toggleRow}>
-            <button
-              className={background === "black" ? styles.active : ""}
-              onClick={() => setBackground("black")}
-            >
-              Black
-            </button>
-            <button
-              className={background === "white" ? styles.active : ""}
-              onClick={() => setBackground("white")}
-            >
-              White
-            </button>
-            <button
-              className={background === "blur" ? styles.active : ""}
-              onClick={() => setBackground("blur")}
-            >
-              Blur
-            </button>
+            {["black", "white", "blur"].map((bg) => (
+              <button
+                key={bg}
+                type="button"
+                className={background === bg ? styles.active : ""}
+                onClick={() => setBackground(bg)}
+              >
+                {bg}
+              </button>
+            ))}
           </div>
         </div>
       )}

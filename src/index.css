@@ -1,4 +1,6 @@
-/* ===== RESET ===== */
+/* =========================
+   RESET
+========================= */
 * {
   box-sizing: border-box;
 }
@@ -10,7 +12,40 @@ body {
   color: #111;
 }
 
-/* ===== LAYOUT ===== */
+/* =========================
+   NEUTRAL BUTTON RESET (IMPORTANT)
+   ❗ DO NOT STYLE COLORS HERE
+========================= */
+button {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Accessibility */
+button:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Touch safety */
+button {
+  min-height: 44px;
+}
+
+/* =========================
+   LAYOUT
+========================= */
 .app {
   min-height: 100vh;
   display: flex;
@@ -24,7 +59,9 @@ body {
   padding: 24px 20px;
 }
 
-/* ===== NAVBAR ===== */
+/* =========================
+   NAVBAR
+========================= */
 .navbar {
   width: 100%;
   background: #fff;
@@ -62,7 +99,9 @@ body {
   color: #000;
 }
 
-/* ===== RESPONSIVE NAVBAR ===== */
+/* =========================
+   RESPONSIVE NAV
+========================= */
 .desktop-only {
   display: flex;
 }
@@ -103,43 +142,17 @@ body {
   color: #333;
 }
 
-/* ===== BUTTON SYSTEM (PRO) ===== */
-button {
-  appearance: none;
-  border: 1px solid #d0d5dd;
-  background: #ffffff;
-  color: #111;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
-
-button:hover {
-  background: #f3f4f6;
-}
-
-button:active {
-  transform: scale(0.97);
-}
-
-button:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 2px;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ===== BUTTON VARIANTS ===== */
+/* =========================
+   BUTTON VARIANTS (GLOBAL ONLY)
+   ⚠️ USE ONLY WHERE NEEDED
+========================= */
 .btn-primary {
   background: #111;
   color: #fff;
-  border-color: #111;
+  border: 1px solid #111;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
 }
 
 .btn-primary:hover {
@@ -150,6 +163,8 @@ button:disabled {
   background: #fff;
   color: #111;
   border: 1px solid #d0d5dd;
+  padding: 10px 18px;
+  border-radius: 12px;
 }
 
 .btn-outline.active {
@@ -163,7 +178,9 @@ button:disabled {
   font-size: 13px;
 }
 
-/* ===== TOOL CARD ===== */
+/* =========================
+   TOOL CARD
+========================= */
 .tool-card {
   background: #fff;
   border: 1px solid #eee;
@@ -185,54 +202,18 @@ button:disabled {
   margin-bottom: 20px;
 }
 
-/* ===== CONTROLS ===== */
+/* =========================
+   CONTROLS WRAPPER
+========================= */
 .controls {
   margin-bottom: 20px;
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
 }
 
-/* ===== SEO SECTION ===== */
-.seo-section {
-  margin-top: 48px;
-  color: #444;
-}
-
-.seo-section h2 {
-  font-size: 22px;
-}
-
-/* ===== FOOTER ===== */
-.footer {
-  text-align: center;
-  font-size: 13px;
-  color: #666;
-  padding: 16px 0;
-  border-top: 1px solid #eee;
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none;
-  }
-
-  .mobile-only {
-    display: block;
-  }
-}
-
-@media (max-width: 600px) {
-  .tool-card {
-    padding: 16px;
-    border-radius: 12px;
-  }
-
-  .tool-title {
-    font-size: 18px;
-  }
-}
-/* ===== Image Upload (Pro) ===== */
+/* =========================
+   IMAGE UPLOAD
+========================= */
 .upload-box {
   margin-bottom: 20px;
 }
@@ -262,12 +243,10 @@ button:disabled {
 .upload-text {
   display: flex;
   flex-direction: column;
-  text-align: left;
 }
 
 .upload-text strong {
   font-size: 15px;
-  color: #111;
 }
 
 .upload-text span {
@@ -275,13 +254,94 @@ button:disabled {
   color: #666;
 }
 
-/* Mobile polish */
-@media (max-width: 600px) {
-  .upload-area {
-    padding: 18px;
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  padding: 16px 0;
+  border-top: 1px solid #eee;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .desktop-only {
+    display: none;
   }
 
-  .upload-icon {
-    font-size: 24px;
+  .mobile-only {
+    display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .tool-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .tool-title {
+    font-size: 18px;
+  }
+
+  .footer {
+    padding: 20px 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    padding: 16px 14px;
+  }
+
+  .upload-area {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .upload-text {
+    align-items: center;
+  }
+}
+/* =========================
+   ADS PLACEHOLDERS (SAFE)
+========================= */
+.ad-slot {
+  width: 100%;
+  min-height: 90px;
+  border: 1px dashed #e5e7eb;
+  background: #fafafa;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 20px 0;
+}
+
+.ad-label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Top banner ad */
+.ad-top {
+  min-height: 90px;
+}
+
+/* Inline content ad */
+.ad-inline {
+  min-height: 120px;
+}
+
+/* Mobile polish */
+@media (max-width: 600px) {
+  .ad-slot {
+    min-height: 80px;
   }
 }

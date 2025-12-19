@@ -1,0 +1,175 @@
+/* =========================
+   ROOT WRAPPER
+========================= */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+/* =========================
+   GROUP (PLATFORM / SECTION)
+========================= */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================
+   SECTION TITLE (Fit Mode / Background)
+========================= */
+.group h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+}
+
+/* =========================
+   ACCORDION HEADER
+========================= */
+.accordionHeader {
+  /* reset global button styles safely */
+  appearance: none;
+  background: none;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  padding: 6px 0;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+
+  cursor: pointer;
+}
+
+.accordionHeader:hover {
+  color: #000;
+}
+
+/* +/- icon */
+.icon {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* =========================
+   PRESET ROW (BUTTONS WRAP)
+========================= */
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+/* =========================
+   PRESET BUTTON (CRITICAL FIX)
+========================= */
+.presetBtn {
+  /* hard reset to avoid global button conflicts */
+  appearance: none;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 16px;
+  min-height: 40px;
+
+  border-radius: 999px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111;            /* ✅ text ALWAYS visible */
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.presetBtn:hover {
+  background: #f3f4f6;
+}
+
+/* ACTIVE STATE */
+.active {
+  background: #111;
+  color: #fff;            /* ✅ white text on black */
+  border-color: #111;
+}
+
+/* =========================
+   TOGGLE ROW (FIT / BG)
+========================= */
+.toggleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toggleRow button {
+  appearance: none;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 16px;
+  min-height: 40px;
+
+  border-radius: 999px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111;
+
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.toggleRow button:hover {
+  background: #f3f4f6;
+}
+
+.toggleRow button.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* =========================
+   MOBILE POLISH
+========================= */
+@media (max-width: 600px) {
+  .presetBtn,
+  .toggleRow button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .presetRow {
+    gap: 12px;
+  }
+}

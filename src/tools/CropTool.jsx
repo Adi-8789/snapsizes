@@ -1,47 +1,97 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import Controls from "./Controls";
 import Preview from "./Preview";
-
-const RATIOS = [
-  { label: "Free", value: null },
-  { label: "1:1", value: 1 },
-  { label: "4:5", value: 4 / 5 },
-  { label: "9:16", value: 9 / 16 },
-  { label: "16:9", value: 16 / 9 },
-  { label: "1.91:1", value: 1.91 },
-];
-
-const PRESETS = [
-  { key: "yt", label: "YouTube Shorts", ratio: 9 / 16, fitMode: "fit", background: "blur" },
-  { key: "ig-story", label: "Instagram Story", ratio: 9 / 16, fitMode: "fit", background: "black" },
-  { key: "ig-post", label: "Instagram Post", ratio: 1, fitMode: "fill", background: "black" },
-  { key: "linkedin", label: "LinkedIn Post", ratio: 1.91, fitMode: "fill", background: "black" },
-  { key: "x", label: "X (Twitter)", ratio: 16 / 9, fitMode: "fill", background: "black" },
-];
+import ExportPanel from "../components/ExportPanel";
+import { PLATFORM_PRESETS } from "../data/platformPresets";
 
 export default function CropTool({ image }) {
+  const canvasRef = useRef(null);
+
   const [fitMode, setFitMode] = useState("fill");
   const [background, setBackground] = useState("black");
-  const [ratio, setRatio] = useState(9 / 16);
+  const [ratio, setRatio] = useState(null);
 
-  // 🔒 Original state (never changes)
-  const original = useRef({
-    fitMode: "fill",
-    background: "black",
-    ratio: 9 / 16,
-  });
+  const [activePreset, setActivePreset] = useState(null);
 
-  const applyPreset = (p) => {
-    setFitMode(p.fitMode);
-    setBackground(p.background);
-    setRatio(p.ratio);
+  // Export
+  const [showExport, setShowExport] = useState(false);
+  const [fileName, setFileName] = useState("snapsizes");
+  const [format, setFormat] = useState("png");
+  const [quality, setQuality] = useState(0.92);
+
+  const applyPreset = (preset) => {
+    if (!preset) return;
+    setActivePreset(preset);
+    setFitMode(preset.fitMode);
+    setBackground(preset.background);
+    setRatio(preset.ratio);
+    setFileName(preset.filename);
   };
 
-  const resetToOriginal = () => {
-    setFitMode(original.current.fitMode);
-    setBackground(original.current.background);
-    setRatio(original.current.ratio);
+  const handleExport = (size) => {
+    if (!image || !size) return;
+
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = size.width;
+    exportCanvas.height = size.height;
+
+    const ctx = exportCanvas.getContext("2d");
+    const img = new Image();
+    img.src = image;
+
+    img.onload = () => {
+      if (fitMode === "fit") {
+        if (background === "black") {
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, size.width, size.height);
+        }
+        if (background === "white") {
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, size.width, size.height);
+        }
+        if (background === "blur") {
+          const s = Math.max(
+            size.width / img.width,
+            size.height / img.height
+          );
+          ctx.filter = "blur(24px)";
+          ctx.drawImage(
+            img,
+            (size.width - img.width * s) / 2,
+            (size.height - img.height * s) / 2,
+            img.width * s,
+            img.height * s
+          );
+          ctx.filter = "none";
+        }
+      }
+
+      const scale =
+        fitMode === "fit"
+          ? Math.min(size.width / img.width, size.height / img.height)
+          : Math.max(size.width / img.width, size.height / img.height);
+
+      ctx.drawImage(
+        img,
+        (size.width - img.width * scale) / 2,
+        (size.height - img.height * scale) / 2,
+        img.width * scale,
+        img.height * scale
+      );
+
+      const link = document.createElement("a");
+      link.download = `${fileName}.${format}`;
+      link.href =
+        format === "jpg"
+          ? exportCanvas.toDataURL("image/jpeg", quality)
+          : exportCanvas.toDataURL("image/png");
+      link.click();
+
+      setShowExport(false);
+    };
   };
+
+  if (!image) return null;
 
   return (
     <>
@@ -50,12 +100,8 @@ export default function CropTool({ image }) {
         setFitMode={setFitMode}
         background={background}
         setBackground={setBackground}
-        ratio={ratio}
-        setRatio={setRatio}
-        ratios={RATIOS}
-        presets={PRESETS}
         onPreset={applyPreset}
-        onReset={resetToOriginal}
+        activePresetKey={activePreset?.key}
       />
 
       <Preview
@@ -63,6 +109,25 @@ export default function CropTool({ image }) {
         fitMode={fitMode}
         background={background}
         ratio={ratio}
+        canvasRef={canvasRef}
+      />
+
+      <button className="btn-primary" onClick={() => setShowExport(true)}>
+        Export Image
+      </button>
+
+      <ExportPanel
+        isOpen={showExport}
+        onClose={() => setShowExport(false)}
+        onConfirm={handleExport}
+        presets={PLATFORM_PRESETS}
+        preset={activePreset}
+        fileName={fileName}
+        setFileName={setFileName}
+        format={format}
+        setFormat={setFormat}
+        quality={quality}
+        setQuality={setQuality}
       />
     </>
   );
