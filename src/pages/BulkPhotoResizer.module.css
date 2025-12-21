@@ -1,0 +1,193 @@
+/* --- RESET & VARIABLES --- */
+.container {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 140px; /* Space for sticky footer + ad */
+  color: #1f2937;
+}
+
+/* --- HEADER & TRUST --- */
+.header { text-align: center; margin-bottom: 1.5rem; }
+.h1 { font-size: 1.75rem; font-weight: 800; color: #111; margin-bottom: 0.25rem; }
+.trustBadge { 
+  font-size: 0.85rem; color: #059669; background: #ecfdf5; 
+  display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 500;
+}
+
+/* --- AD CONTAINERS (CLS Safe) --- */
+.adContainerTop, .adContainerBottom {
+  background: #f3f4f6;
+  min-height: 100px; /* Prevents layout shift */
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+.adLabel { font-size: 10px; color: #9ca3af; text-transform: uppercase; margin-bottom: 4px; }
+.adPlaceholder { width: 300px; height: 50px; background: #e5e7eb; }
+
+/* --- MAIN LAYOUT --- */
+.main { display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* Desktop Grid Layout */
+@media (min-width: 768px) {
+  .main { 
+    display: grid; 
+    grid-template-columns: 320px 1fr; 
+    align-items: start; 
+  }
+  .grid { grid-column: 2; }
+  .uploadSection { grid-column: 1; grid-row: 1; }
+  .accordion { grid-column: 1; grid-row: 2; }
+}
+
+/* --- ACCORDION & SETTINGS --- */
+.accordion {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.accordionHeader {
+  padding: 1rem;
+  background: #f9fafb;
+  cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  list-style: none;
+}
+.accordionHeader::-webkit-details-marker { display: none; }
+.h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+.chevron { font-size: 0.8rem; color: #6b7280; }
+
+.accordionContent { padding: 1rem; border-top: 1px solid #e5e7eb; }
+
+/* Desktop: Always expanded, hide accordion styling */
+@media (min-width: 768px) {
+  .accordionHeader { pointer-events: none; background: white; }
+  .chevron { display: none; }
+  .accordionContent { border-top: none; }
+}
+
+/* --- INPUTS --- */
+.sizeTags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.sizeTag { 
+  background: #dbeafe; color: #1e40af; 
+  padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.sizeTag button { background: none; border: none; color: inherit; cursor: pointer; font-weight: bold; }
+
+.inputGroup { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1rem; }
+.inputGroup input { width: 50px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; }
+.row { display: flex; flex-direction: column; gap: 1rem; }
+.select { padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; width: 100%; }
+.sliderGroup { font-size: 0.85rem; display: flex; flex-direction: column; gap: 4px; }
+
+/* --- UPLOAD SECTION --- */
+.uploadCard {
+  background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;
+  text-align: center; display: flex; flex-direction: column; gap: 1rem;
+}
+.uploadHeader { display: flex; justify-content: space-between; align-items: center; }
+.limitText { font-size: 0.9rem; color: #6b7280; margin-top: -0.5rem; }
+
+.primaryBtn {
+  background: #2563eb; color: white; border: none; padding: 12px;
+  border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
+  transition: background 0.2s;
+}
+.primaryBtn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+.secondaryBtn { background: #f3f4f6; border: 1px solid #e5e7eb; padding: 0 12px; border-radius: 6px; cursor: pointer; height: 32px; font-size: 0.8rem; }
+
+/* New Reset Button Style */
+.resetBtn {
+  background: none; border: 1px solid #fecaca; color: #dc2626;
+  font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; cursor: pointer;
+}
+.resetBtn:hover { background: #fef2f2; }
+
+.adUnlockBtn {
+  background: #fff; border: 1px dashed #059669; color: #059669;
+  padding: 8px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+/* --- IMAGE GRID (Compact Mobile) --- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columns on mobile */
+  gap: 0.75rem;
+}
+@media (min-width: 640px) { .grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
+
+.imgCard {
+  background: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column;
+}
+
+.previewBox {
+  height: 120px; background: #f9fafb;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 10px 10px;
+}
+.previewBox img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.2s; }
+
+.cardMeta { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.filename { font-size: 0.75rem; color: #4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.editorToolbar { display: flex; gap: 4px; }
+.editorToolbar button {
+  flex: 1; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px;
+  padding: 4px; cursor: pointer; font-size: 1rem; color: #374151;
+}
+
+/* New Action Row for Card Buttons */
+.actionRow { display: flex; gap: 8px; margin-top: 4px; }
+.removeBtn {
+  flex: 1; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+  padding: 6px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600;
+}
+.singleDownloadBtn {
+  flex: 1; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;
+  padding: 6px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 600;
+}
+
+/* --- SEO CONTENT --- */
+.seoContent { background: #f9fafb; padding: 1.5rem; border-radius: 12px; margin-top: 2rem; }
+.seoContent h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+.faqItem { margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5; }
+
+/* --- STICKY FOOTER --- */
+.stickyFooter {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: white; border-top: 1px solid #e5e7eb;
+  padding: 12px; z-index: 50;
+  transform: translateY(100%); transition: transform 0.3s ease-out;
+  box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.stickyFooter.visible { transform: translateY(0); }
+
+.footerInner { max-width: 600px; margin: 0 auto; }
+
+.downloadBtn {
+  width: 100%; background: #059669; color: white; border: none;
+  padding: 14px; border-radius: 12px; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 4px 6px rgba(5, 150, 105, 0.2);
+}
+
+.progressBar {
+  width: 100%; background: #e5e7eb; height: 44px; border-radius: 12px;
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.progressBar div {
+  position: absolute; left: 0; top: 0; height: 100%; background: #3b82f6; transition: width 0.2s;
+}
+.progressBar span { position: relative; z-index: 2; color: white; font-weight: 600; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }

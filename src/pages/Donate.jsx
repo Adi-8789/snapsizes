@@ -29,7 +29,7 @@ export default function Donate() {
           OPTIONAL QR IMAGE
           <br />
           <img
-            src="/public/WhatsApp Image 2025-12-20 at 3.40.22 AM.jpeg"
+            src="/upi-qr.png.jpeg"
             alt="Donate via UPI QR"
             style={{ maxWidth: "210px", marginTop: "16px" }}
           />

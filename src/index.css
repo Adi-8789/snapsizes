@@ -345,3 +345,106 @@ button {
     min-height: 80px;
   }
 }
+/* =========================
+   HERO SECTION (App.jsx)
+   ✅ Safe additions only
+========================= */
+.hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hero-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.hero-subtitle {
+  font-size: 15px;
+  color: #555;
+  max-width: 620px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.hero-primary-btn {
+  background: #111;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hero-secondary-btn {
+  background: #fff;
+  color: #111;
+  border: 1px solid #d0d5dd;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hero-trust {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 13px;
+  color: #555;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   SEO SECTION (SAFE)
+========================= */
+.seo-section {
+  margin-top: 40px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444;
+}
+
+.seo-section h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.seo-section h3 {
+  font-size: 16px;
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+
+/* =========================
+   MOBILE OPTIMIZATION (HERO)
+========================= */
+@media (max-width: 600px) {
+  .hero-title {
+    font-size: 24px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .hero-primary-btn,
+  .hero-secondary-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
