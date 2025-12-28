@@ -5,15 +5,21 @@ export default function Contact() {
     <div>
       <SeoHead
         title="Contact SnapSizes"
-        description="Get in touch with SnapSizes for feedback, questions, or support regarding our free image resizing tools."
+        description="Contact SnapSizes for feedback, questions, or support related to our free online image resizing tools."
         canonical="https://snapsizes.vercel.app/contact"
       />
 
       <h1>Contact Us</h1>
 
       <p>
-        If you have questions, feedback, or suggestions about SnapSizes, feel
-        free to reach out.
+        We value user feedback and strive to improve SnapSizes continuously. If
+        you have questions, suggestions, or encounter any issues while using
+        our tools, feel free to get in touch with us.
+      </p>
+
+      <p>
+        You can contact us directly via email for general inquiries, technical
+        questions, or feedback related to SnapSizes.
       </p>
 
       <p>
@@ -21,7 +27,7 @@ export default function Contact() {
       </p>
 
       <p>
-        We aim to respond to genuine inquiries as soon as possible.
+        We aim to review and respond to genuine inquiries as soon as possible.
       </p>
     </div>
   );

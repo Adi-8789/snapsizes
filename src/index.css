@@ -394,7 +394,25 @@ button {
   font-weight: 600;
   text-decoration: none;
 }
+.about-intro {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 40px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444;
+}
 
+.about-intro h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.about-intro p {
+  margin-bottom: 12px;
+}
 .hero-trust {
   display: flex;
   gap: 16px;

@@ -5,27 +5,37 @@ export default function About() {
     <div>
       <SeoHead
         title="About SnapSizes – Free Online Image Resizer Tool"
-        description="Learn about SnapSizes, a free online image resizer built to help creators resize images for social media easily."
+        description="Learn about SnapSizes, a free online image resizer built to help creators resize images for social media easily and privately."
         canonical="https://snapsizes.vercel.app/about"
       />
 
       <h1>About SnapSizes</h1>
 
       <p>
-        SnapSizes is a free online image resizer tool designed to help creators,
-        marketers, and everyday users resize images for social media platforms
-        quickly and easily.
+        SnapSizes is a free online image resizer created to help creators,
+        marketers, developers, and everyday users resize images for social media
+        platforms quickly and without complexity.
       </p>
 
       <p>
-        Our goal is to remove complexity from image resizing. With SnapSizes,
-        you can upload an image once and instantly adjust it for platforms like
-        Instagram, YouTube Shorts, LinkedIn, and more.
+        Many users struggle with adjusting image dimensions for different
+        platforms such as Instagram, YouTube Shorts, LinkedIn, or WhatsApp.
+        SnapSizes solves this problem by allowing you to upload an image once
+        and resize or crop it instantly for multiple use cases.
       </p>
 
       <p>
-        SnapSizes works entirely in your browser. We do not upload or store your
-        images on any server, ensuring speed and privacy.
+        SnapSizes is designed to be simple, fast, and accessible. The tool works
+        entirely in your browser, which means images are processed locally on
+        your device. We do not upload, store, or track your images on any server,
+        ensuring better privacy and control for users.
+      </p>
+
+      <p>
+        Our goal is to provide a reliable and user-friendly image resizing tool
+        without requiring account creation, subscriptions, or software
+        downloads. SnapSizes is continuously improved to support modern
+        workflows and make image resizing easier for everyone.
       </p>
     </div>
   );

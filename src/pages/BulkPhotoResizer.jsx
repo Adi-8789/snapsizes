@@ -393,7 +393,7 @@ const BulkPhotoResizer = () => {
                 className={styles.adUnlockBtn}
                 onClick={() => setIsUnlocked(true)}
               >
-                <span>📺 Support us to unlock {MAX_PRO_FILES} slots</span>
+                <span> Higher usage limits may be available</span>
               </button>
             )}
           </div>
@@ -476,8 +476,7 @@ const BulkPhotoResizer = () => {
           <div className={styles.faqItem}>
             <strong>Is it free?</strong>
             <p>
-              Yes. You can resize up to {MAX_FREE_FILES} images at once for
-              free, or support us to unlock {MAX_PRO_FILES}.
+              Yes. You can resize all the images for free at no cost.
             </p>
           </div>
 
@@ -490,40 +489,36 @@ const BulkPhotoResizer = () => {
           </div>
 
           {/* COLLAPSIBLE SEO CONTENT */}
-          <details>
-            <summary>
-              <strong>About the Bulk Photo Resizer Tool</strong>
-            </summary>
 
-            <p>
-              SnapSizes Bulk Photo Resizer is a free, browser-based tool
-              designed to help users resize multiple images quickly and
-              securely. It allows creators, marketers, and everyday users to
-              generate images in popular sizes such as Instagram posts, Full HD
-              images, and custom pixel dimensions without installing any
-              software.
-            </p>
+          <summary>
+            <strong>About the Bulk Photo Resizer Tool</strong>
+          </summary>
 
-            <p>
-              All image processing is performed locally inside your browser
-              using modern JavaScript and canvas technology. Your images are
-              never uploaded to any server, ensuring full privacy and fast
-              performance.
-            </p>
+          <p>
+            SnapSizes Bulk Photo Resizer is a free, browser-based tool designed
+            to help users resize multiple images quickly and securely. It allows
+            creators, marketers, and everyday users to generate images in
+            popular sizes such as Instagram posts, Full HD images, and custom
+            pixel dimensions without installing any software.
+          </p>
 
-            <p>
-              The bulk resizer supports JPG and PNG formats, adjustable output
-              quality, and batch downloads as a ZIP file. Free users can resize
-              up to {MAX_FREE_FILES} images at once, while optional support
-              unlocks higher limits for heavier usage.
-            </p>
+          <p>
+            All image processing is performed locally inside your browser using
+            modern JavaScript and canvas technology. Your images are never
+            uploaded to any server, ensuring full privacy and fast performance.
+          </p>
 
-            <p>
-              Whether you are preparing images for social media, websites, or
-              presentations, SnapSizes provides a clean, reliable, and
-              privacy-friendly bulk image resizing solution.
-            </p>
-          </details>
+          <p>
+            The bulk resizer supports JPG and PNG formats, adjustable output
+            quality, and batch downloads as a ZIP file. Higher usage limits may
+            be available depending on usage patterns.
+          </p>
+
+          <p>
+            Whether you are preparing images for social media, websites, or
+            presentations, SnapSizes provides a clean, reliable, and
+            privacy-friendly bulk image resizing solution.
+          </p>
         </section>
       </main>
 
