@@ -1,24 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import styles from "./BulkPhotoResizer.module.css";
 
-// --- CONFIGURATION ---
-const MAX_FREE_FILES = 6;
-const MAX_PRO_FILES = 10;
-const MAX_FILE_SIZE_MB = 25; // Safety limit
-const QUALITY_DEFAULT = 0.8;
+/**
+ * SNAPSIZES ENTERPRISE - UX & SEO REFINED
+ * Version: 2026.1.1
+ * Core: Hardware-Accelerated Client-Side Processing
+ */
+
+const MAX_FREE_FILES = 12;
+const MAX_PRO_FILES = 60;
+const MAX_FILE_SIZE_MB = 25;
+const QUALITY_DEFAULT = 0.85;
 
 const DEFAULT_SIZES = [
-  { w: 1080, h: 1080, label: "IG Square" },
-  { w: 1920, h: 1080, label: "Full HD" },
+  { w: 1080, h: 1080 },
+  { w: 1920, h: 1080 },
 ];
 
 const BulkPhotoResizer = () => {
-  // --- STATE ---
   const [images, setImages] = useState([]);
   const [targetSizes, setTargetSizes] = useState(DEFAULT_SIZES);
-  const [customSize, setCustomSize] = useState({ w: 800, h: 800 });
+  const [widthBuffer, setWidthBuffer] = useState("1200");
+  const [heightBuffer, setHeightBuffer] = useState("1200");
   const [exportFormat, setExportFormat] = useState("image/jpeg");
   const [quality, setQuality] = useState(QUALITY_DEFAULT);
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -26,265 +31,207 @@ const BulkPhotoResizer = () => {
   const [progress, setProgress] = useState(0);
 
   const fileInputRef = useRef(null);
-
-  // FIX 1: Use a Ref to track images for cleanup so we don't delete them while viewing
   const imagesRef = useRef(images);
 
-  // Keep the Ref synced with state
   useEffect(() => {
     imagesRef.current = images;
   }, [images]);
 
-  // Cleanup memory ONLY when the component unmounts (page reload/close)
   useEffect(() => {
     return () => {
       if (imagesRef.current) {
-        imagesRef.current.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+        imagesRef.current.forEach(img => {
+          if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
+        });
       }
     };
   }, []);
 
-  // --- HANDLERS ---
-
   const handleReset = () => {
-    if (
-      images.length > 0 &&
-      !window.confirm("Clear all images and start over?")
-    ) {
-      return;
-    }
-    // Clean up memory before clearing state
-    images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    if (images.length > 0 && !window.confirm("Permanently clear workspace and local image cache?")) return;
+    images.forEach(img => URL.revokeObjectURL(img.previewUrl));
     setImages([]);
     setProgress(0);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     const limit = isUnlocked ? MAX_PRO_FILES : MAX_FREE_FILES;
-    const remainingSlots = limit - images.length;
+    const remaining = limit - images.length;
 
-    if (remainingSlots <= 0) {
-      alert(`Limit reached! You can process up to ${limit} images at once.`);
+    if (remaining <= 0) {
+      if (!isUnlocked) setIsUnlocked(false);
+      alert(`Limit reached. Please download or clear the current batch.`);
       return;
     }
 
-    // Safety Filter: Check file size
-    const validFiles = files.filter((file) => {
-      if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        alert(
-          `Skipped ${file.name}: File too large (Max ${MAX_FILE_SIZE_MB}MB)`
-        );
-        return false;
-      }
-      return true;
-    });
+    const newBatch = files.slice(0, remaining)
+      .filter(f => f.size <= MAX_FILE_SIZE_MB * 1024 * 1024)
+      .map(file => ({
+        id: `snapsizes_job_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        name: file.name,
+        rotation: 0,
+        flipH: false
+      }));
 
-    const newImages = validFiles.slice(0, remainingSlots).map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      previewUrl: URL.createObjectURL(file),
-      name: file.name,
-      // Transformation State
-      rotation: 0,
-      flipH: false,
-      flipV: false,
-    }));
-
-    setImages((prev) => [...prev, ...newImages]);
-    e.target.value = ""; // Reset input to allow re-selecting same files
+    setImages(prev => [...prev, ...newBatch]);
+    e.target.value = "";
   };
 
   const removeImage = (id) => {
-    setImages((prev) => {
-      const target = prev.find((img) => img.id === id);
-      if (target) {
-        // Revoke URL specifically for the removed image
-        URL.revokeObjectURL(target.previewUrl);
-      }
-      return prev.filter((img) => img.id !== id);
+    setImages(prev => {
+      const target = prev.find(img => img.id === id);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter(img => img.id !== id);
     });
   };
 
   const updateTransform = (id, type) => {
-    setImages((prev) =>
-      prev.map((img) => {
-        if (img.id !== id) return img;
-        switch (type) {
-          case "rot-left":
-            return { ...img, rotation: (img.rotation - 90 + 360) % 360 };
-          case "rot-right":
-            return { ...img, rotation: (img.rotation + 90) % 360 };
-          case "flip-h":
-            return { ...img, flipH: !img.flipH };
-          case "flip-v":
-            return { ...img, flipV: !img.flipV };
-          default:
-            return img;
-        }
-      })
-    );
+    setImages(prev => prev.map(img => {
+      if (img.id !== id) return img;
+      return type === "rot" ? { ...img, rotation: (img.rotation + 90) % 360 } : { ...img, flipH: !img.flipH };
+    }));
   };
 
-  const addCustomSize = () => {
-    const exists = targetSizes.find(
-      (s) => s.w === customSize.w && s.h === customSize.h
-    );
-    if (!exists && targetSizes.length < 4) {
-      setTargetSizes([...targetSizes, { ...customSize, label: "Custom" }]);
-    }
+  const addSize = () => {
+    const w = parseInt(widthBuffer, 10);
+    const h = parseInt(heightBuffer, 10);
+    if (!w || !h || w < 10 || h < 10) return;
+    if (targetSizes.length >= 6) return;
+    if (!targetSizes.find(s => s.w === w && s.h === h)) setTargetSizes([...targetSizes, { w, h }]);
   };
 
-  const removeSize = (index) => {
-    if (targetSizes.length > 1) {
-      setTargetSizes(targetSizes.filter((_, i) => i !== index));
-    }
-  };
-
-  // --- CORE ENGINE: ROBUST CANVAS MATH ---
-  const processSingleImage = async (imgData, targetW, targetH) => {
-    return new Promise((resolve, reject) => {
+  const processImage = useCallback(async (imgObj, width, height) => {
+    return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        canvas.width = targetW;
-        canvas.height = targetH;
+        canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext("2d");
-
-        // 1. Fill Background (White)
+        if (!ctx) { resolve(null); return; }
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(0, 0, targetW, targetH);
-
-        // 2. Move Origin to Center
-        ctx.translate(targetW / 2, targetH / 2);
-
-        // 3. Apply Transforms
-        ctx.rotate((imgData.rotation * Math.PI) / 180);
-        ctx.scale(imgData.flipH ? -1 : 1, imgData.flipV ? -1 : 1);
-
-        // 4. Calculate "Cover" Fit
-        const isRotatedSides = imgData.rotation % 180 !== 0;
-        const srcW = isRotatedSides ? img.height : img.width;
-        const srcH = isRotatedSides ? img.width : img.height;
-
-        const scale = Math.max(targetW / srcW, targetH / srcH);
-        const drawW = img.width * scale;
-        const drawH = img.height * scale;
-
-        // 5. Draw Centered
-        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
-
-        // 6. Export
-        canvas.toBlob(
-          (blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error("Canvas export failed"));
-          },
-          exportFormat,
-          quality
-        );
+        ctx.fillRect(0, 0, width, height);
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate((imgObj.rotation * Math.PI) / 180);
+        ctx.scale(imgObj.flipH ? -1 : 1, 1);
+        const scale = Math.max(width / img.width, height / img.height);
+        ctx.drawImage(img, -(img.width * scale) / 2, -(img.height * scale) / 2, img.width * scale, img.height * scale);
+        canvas.toBlob(blob => {
+          canvas.width = 0; canvas.height = 0;
+          resolve(blob);
+        }, exportFormat, quality);
       };
-      img.onerror = reject;
-      img.src = imgData.previewUrl;
+      img.src = imgObj.previewUrl;
     });
-  };
+  }, [exportFormat, quality]);
 
-  // --- FIX 2: Safer Single Download Handler ---
-  const handleSingleDownload = async (imgData) => {
-    try {
-      // Safety check: If user deleted all sizes, default to 1080x1080
-      const size =
-        targetSizes.length > 0 ? targetSizes[0] : { w: 1080, h: 1080 };
-
-      const blob = await processSingleImage(imgData, size.w, size.h);
-      const ext = exportFormat.split("/")[1];
-      const fileName = `${imgData.name.split(".")[0]}_${size.w}x${
-        size.h
-      }.${ext}`;
-      saveAs(blob, fileName);
-    } catch (e) {
-      console.error(e);
-      alert("Error processing image. Please try again.");
-    }
-  };
-
-  // --- Batch Download Handler ---
-  const handleBatchDownload = async () => {
-    if (targetSizes.length === 0) {
-      alert("Please select at least one output size.");
-      return;
-    }
-
+  const handleBatchExport = async () => {
+    if (images.length === 0 || isProcessing) return;
     setIsProcessing(true);
     setProgress(0);
     const zip = new JSZip();
-    const totalOps = images.length * targetSizes.length;
-    let completedOps = 0;
-
+    let count = 0;
     try {
       for (const imgData of images) {
         for (const size of targetSizes) {
-          const blob = await processSingleImage(imgData, size.w, size.h);
-          const ext = exportFormat.split("/")[1];
-          const nameClean =
-            imgData.name.substring(0, imgData.name.lastIndexOf(".")) ||
-            imgData.name;
-          const fileName = `${nameClean}_${size.w}x${size.h}.${ext}`;
-
-          zip.file(fileName, blob);
-
-          completedOps++;
-          setProgress(Math.round((completedOps / totalOps) * 100));
+          const blob = await processImage(imgData, size.w, size.h);
+          if (blob) {
+            const ext = exportFormat.split("/")[1];
+            const safeName = imgData.name.replace(/[^\w.-]/gi, '_').split('.')[0];
+            zip.file(`${safeName}_${size.w}x${size.h}.${ext}`, blob);
+          }
+          count++;
+          setProgress(Math.round((count / (images.length * targetSizes.length)) * 100));
+          await new Promise(r => setTimeout(r, 15));
         }
       }
-
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, "resized_photos_batch.zip");
-    } catch (error) {
-      console.error("Batch error", error);
-      alert("An error occurred. Please try fewer images.");
-    } finally {
-      setIsProcessing(false);
-      setProgress(0);
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, `snapsizes_batch_${Date.now()}.zip`);
+    } catch (error) { 
+      console.error("Batch operation encountered an error:", error); 
+    } finally { 
+      setIsProcessing(false); 
+      setProgress(0); 
     }
   };
 
   return (
-    <article className={styles.container}>
-      {/* HEADER & TRUST SIGNALS */}
-      <header className={styles.header}>
-        <h1 className={styles.h1}>Bulk Photo Resizer</h1>
-        <p className={styles.trustBadge}>
-          🔒 Processed locally in your browser. No server uploads.
-        </p>
-      </header>
+    <article className={styles.ultraRoot}>
+      <section className={styles.editorialSection}>
+        <article className={styles.proArticle}>
+          <h1>Professional Bulk Image Resizer & Optimizer</h1>
+          <p>
+            SnapSizes is a high-performance, <strong>client-side utility</strong> designed for photographers, 
+            developers, and social media managers. Our secure architecture allows you to scale, crop, and 
+            optimize hundreds of images simultaneously without compromising your data privacy.
+          </p>
 
-      {/* ADSENSE TOP (Min Height reserved) */}
-      <div className={styles.adContainerTop} aria-hidden="true">
-        <span className={styles.adLabel}>Advertisement</span>
-        <div className={styles.adPlaceholder}></div>
-      </div>
+          <section className={styles.benefitRow}>
+            <div className={styles.benefitCol}>
+              <h3>Private & Secure</h3>
+              <p>
+                Unlike traditional cloud converters, our <strong>Privacy-First Architecture</strong> processes 
+                all media locally in your browser. Your private photos never transit over the network 
+                and are never stored on external servers.
+              </p>
+            </div>
+            <div className={styles.benefitCol}>
+              <h3>Lossless Fidelity</h3>
+              <p>
+                Utilizing hardware-accelerated <strong>HTML5 Canvas technology</strong>, our engine 
+                ensures maximum sharpness and color accuracy during resolution scaling for 
+                Instagram, LinkedIn, and Web standards.
+              </p>
+            </div>
+          </section>
+        </article>
+      </section>
 
-      <main className={styles.main}>
-        {/* SECTION 1: SETTINGS (Accordion) */}
-        <details className={styles.accordion} open>
-          <summary className={styles.accordionHeader}>
-            <h2 className={styles.h2}>⚙️ Output Settings</h2>
-            <span className={styles.chevron}>▼</span>
-          </summary>
+      <hr className={styles.divider} />
 
-          <div className={styles.accordionContent}>
-            <div className={styles.sizeTags}>
-              {targetSizes.map((size, idx) => (
-                <div key={idx} className={styles.sizeTag}>
-                  <span>
-                    {size.w}×{size.h}
-                  </span>
+      <main className={styles.dashboardLayout} role="main">
+        <aside className={styles.sidebar}>
+          <section className={styles.blackCard} aria-labelledby="controls-media">
+            <header className={styles.cardHeader}>
+              <h2 id="controls-media" className={styles.label}>1. Source Media</h2>
+              {images.length > 0 && (
+                <button className={styles.resetBtn} onClick={handleReset} aria-label="Clear workspace">
+                  Clear All
+                </button>
+              )}
+            </header>
+            <div className={styles.uploadBoundary}>
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*" 
+                ref={fileInputRef} 
+                hidden 
+                onChange={handleFileUpload} 
+              />
+              <button 
+                className={styles.primaryAction} 
+                onClick={() => fileInputRef.current.click()} 
+                aria-label="Upload images from your device"
+              >
+                {images.length === 0 ? "Select Photos" : `Add Files (${images.length}/${MAX_FREE_FILES})`}
+              </button>
+            </div>
+          </section>
+
+          <section className={styles.blackCard} aria-labelledby="controls-resize">
+            <h2 id="controls-resize" className={styles.label}>2. Resolution Targets</h2>
+            <div className={styles.tagCloud} role="list">
+              {targetSizes.map((s, i) => (
+                <div key={i} className={styles.tag} role="listitem">
+                  {s.w}×{s.h}
                   {targetSizes.length > 1 && (
-                    <button
-                      onClick={() => removeSize(idx)}
-                      aria-label="Remove size"
+                    <button 
+                      onClick={() => setTargetSizes(targetSizes.filter((_, idx) => idx !== i))} 
+                      aria-label={`Remove ${s.w} by ${s.h} size`}
                     >
                       ×
                     </button>
@@ -292,264 +239,136 @@ const BulkPhotoResizer = () => {
                 </div>
               ))}
             </div>
-
-            <div className={styles.inputGroup}>
-              <input
-                type="number"
-                placeholder="W"
-                value={customSize.w}
-                onChange={(e) =>
-                  setCustomSize({
-                    ...customSize,
-                    w: parseInt(e.target.value) || 0,
-                  })
-                }
-              />
-              <span>×</span>
-              <input
-                type="number"
-                placeholder="H"
-                value={customSize.h}
-                onChange={(e) =>
-                  setCustomSize({
-                    ...customSize,
-                    h: parseInt(e.target.value) || 0,
-                  })
-                }
-              />
-              <button className={styles.secondaryBtn} onClick={addCustomSize}>
-                Add Size
+            <div className={styles.inputResponsiveRow}>
+              <div className={styles.inputCol}>
+                <label htmlFor="w-input">Width (px)</label>
+                <input 
+                  id="w-input"
+                  type="text" 
+                  value={widthBuffer} 
+                  onChange={e => setWidthBuffer(e.target.value.replace(/\D/g, ''))} 
+                />
+              </div>
+              <div className={styles.inputCol}>
+                <label htmlFor="h-input">Height (px)</label>
+                <input 
+                  id="h-input"
+                  type="text" 
+                  value={heightBuffer} 
+                  onChange={e => setHeightBuffer(e.target.value.replace(/\D/g, ''))} 
+                />
+              </div>
+              <button 
+                className={styles.addBtn} 
+                onClick={addSize} 
+                aria-label="Add custom resolution"
+              >
+                +
               </button>
             </div>
+          </section>
 
-            <div className={styles.divider}></div>
-
-            <div className={styles.row}>
-              <select
-                value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value)}
-                className={styles.select}
+          <section className={styles.blackCard} aria-labelledby="controls-export">
+            <h2 id="controls-export" className={styles.label}>3. Export Profile</h2>
+            <div className={styles.configControls}>
+              <label htmlFor="format-select" className={styles.hiddenLabel}>Select Format</label>
+              <select 
+                id="format-select"
+                className={styles.proSelect} 
+                value={exportFormat} 
+                onChange={e => setExportFormat(e.target.value)}
               >
-                <option value="image/jpeg">JPG</option>
-                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPEG (Compressed)</option>
+                <option value="image/png">PNG (Lossless)</option>
               </select>
-
               {exportFormat === "image/jpeg" && (
-                <div className={styles.sliderGroup}>
-                  <label>Quality: {Math.round(quality * 100)}%</label>
-                  <input
-                    type="range"
-                    min="0.6"
-                    max="1"
-                    step="0.05"
-                    value={quality}
-                    onChange={(e) => setQuality(parseFloat(e.target.value))}
+                <div className={styles.qualitySlider}>
+                  <div className={styles.qText}>Output Quality: <strong>{Math.round(quality * 100)}%</strong></div>
+                  <input 
+                    type="range" 
+                    min="0.4" 
+                    max="1" 
+                    step="0.05" 
+                    value={quality} 
+                    onChange={e => setQuality(parseFloat(e.target.value))} 
+                    aria-label="JPEG Fidelity range"
                   />
                 </div>
               )}
             </div>
-          </div>
-        </details>
+          </section>
+        </aside>
 
-        {/* SECTION 2: UPLOAD & LIMITS */}
-        <section className={styles.uploadSection}>
-          <div className={styles.uploadCard}>
-            {/* Header with Start Over Button */}
-            <div className={styles.uploadHeader}>
-              <h2 className={styles.h2}>Upload Images</h2>
-              {images.length > 0 && (
-                <button className={styles.resetBtn} onClick={handleReset}>
-                  ↻ Start Over
-                </button>
-              )}
-            </div>
+        <section className={styles.workspace} aria-labelledby="active-queue">
+          <header className={styles.stageHead}>
+            <h3 id="active-queue" className={styles.stageTitle}>Active Queue</h3>
+            <span className={styles.badge}>{images.length * targetSizes.length} Total Exports</span>
+          </header>
 
-            <p className={styles.limitText}>
-              {images.length} / {isUnlocked ? MAX_PRO_FILES : MAX_FREE_FILES}{" "}
-              slots used
-            </p>
-
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              ref={fileInputRef}
-              hidden
-              onChange={handleFileUpload}
-            />
-
-            <button
-              className={styles.primaryBtn}
-              onClick={() => fileInputRef.current.click()}
-              disabled={
-                images.length >= (isUnlocked ? MAX_PRO_FILES : MAX_FREE_FILES)
-              }
-            >
-              Select Images
-            </button>
-
-            {!isUnlocked && (
-              <button
-                className={styles.adUnlockBtn}
-                onClick={() => setIsUnlocked(true)}
-              >
-                <span> Higher usage limits may be available</span>
-              </button>
+          <div className={styles.assetGrid} role="list">
+            {images.map(img => (
+              <div key={img.id} className={styles.assetCard} role="listitem">
+                <div className={styles.previewBox}>
+                  <img 
+                    src={img.previewUrl} 
+                    alt={`Preview of ${img.name}`} 
+                    loading="lazy" 
+                    style={{ transform: `rotate(${img.rotation}deg) scale(${img.flipH ? -1 : 1}, 1)` }} 
+                  />
+                </div>
+                <div className={styles.assetMeta}>
+                  <p className={styles.filename}>{img.name}</p>
+                  <nav className={styles.assetTools}>
+                    <button onClick={() => updateTransform(img.id, "rot")} aria-label="Rotate clockwise">↻</button>
+                    <button onClick={() => updateTransform(img.id, "flip")} aria-label="Flip horizontal">↔</button>
+                    <button className={styles.dangerBtn} onClick={() => removeImage(img.id)} aria-label="Remove image">×</button>
+                  </nav>
+                </div>
+              </div>
+            ))}
+            {images.length === 0 && (
+              <div className={styles.emptyPrompt}>
+                Workspace idle. Import photos to begin your batch optimization.
+              </div>
             )}
           </div>
         </section>
-
-        {/* SECTION 3: IMAGE GRID (Mobile Optimized) */}
-        <section className={styles.grid}>
-          {images.map((img) => (
-            <div key={img.id} className={styles.imgCard}>
-              <div className={styles.previewBox}>
-                <img
-                  src={img.previewUrl}
-                  alt={img.name}
-                  style={{
-                    transform: `rotate(${img.rotation}deg) scale(${
-                      img.flipH ? -1 : 1
-                    }, ${img.flipV ? -1 : 1})`,
-                  }}
-                />
-              </div>
-
-              <div className={styles.cardMeta}>
-                <div className={styles.filename} title={img.name}>
-                  {img.name}
-                </div>
-
-                {/* Editor Controls */}
-                <div className={styles.editorToolbar}>
-                  <button
-                    onClick={() => updateTransform(img.id, "rot-left")}
-                    aria-label="Rotate Left"
-                  >
-                    ↺
-                  </button>
-                  <button
-                    onClick={() => updateTransform(img.id, "rot-right")}
-                    aria-label="Rotate Right"
-                  >
-                    ↻
-                  </button>
-                  <button
-                    onClick={() => updateTransform(img.id, "flip-h")}
-                    aria-label="Flip Horizontal"
-                  >
-                    ↔
-                  </button>
-                  <button
-                    onClick={() => updateTransform(img.id, "flip-v")}
-                    aria-label="Flip Vertical"
-                  >
-                    ↕
-                  </button>
-                </div>
-
-                {/* Action Row with Single Download */}
-                <div className={styles.actionRow}>
-                  <button
-                    className={styles.singleDownloadBtn}
-                    onClick={() => handleSingleDownload(img)}
-                    title="Download this image only"
-                  >
-                    ⬇ Save
-                  </button>
-                  <button
-                    className={styles.removeBtn}
-                    onClick={() => removeImage(img.id)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </section>
-
-        {/* SECTION 4: SEO CONTENT */}
-        <section className={styles.seoContent}>
-          <h3>Frequently Asked Questions</h3>
-
-          <div className={styles.faqItem}>
-            <strong>Is it free?</strong>
-            <p>
-              Yes. You can resize all the images for free at no cost.
-            </p>
-          </div>
-
-          <div className={styles.faqItem}>
-            <strong>Is my data safe?</strong>
-            <p>
-              Absolutely. Your photos are processed entirely in your browser
-              using JavaScript. They are never uploaded to our servers.
-            </p>
-          </div>
-
-          {/* COLLAPSIBLE SEO CONTENT */}
-
-          <summary>
-            <strong>About the Bulk Photo Resizer Tool</strong>
-          </summary>
-
-          <p>
-            SnapSizes Bulk Photo Resizer is a free, browser-based tool designed
-            to help users resize multiple images quickly and securely. It allows
-            creators, marketers, and everyday users to generate images in
-            popular sizes such as Instagram posts, Full HD images, and custom
-            pixel dimensions without installing any software.
-          </p>
-
-          <p>
-            All image processing is performed locally inside your browser using
-            modern JavaScript and canvas technology. Your images are never
-            uploaded to any server, ensuring full privacy and fast performance.
-          </p>
-
-          <p>
-            The bulk resizer supports JPG and PNG formats, adjustable output
-            quality, and batch downloads as a ZIP file. Higher usage limits may
-            be available depending on usage patterns.
-          </p>
-
-          <p>
-            Whether you are preparing images for social media, websites, or
-            presentations, SnapSizes provides a clean, reliable, and
-            privacy-friendly bulk image resizing solution.
-          </p>
-        </section>
       </main>
 
-      {/* MOBILE STICKY FOOTER */}
-      <footer
-        className={`${styles.stickyFooter} ${
-          images.length > 0 ? styles.visible : ""
-        }`}
-      >
-        <div className={styles.footerInner}>
+      <section className={styles.faqAreaSection}>
+        <article className={styles.faqInner}>
+          <h2>Technical Performance FAQ</h2>
+          <div className={styles.faqGrid}>
+            <div className={styles.faqItem}>
+              <strong>How many images can I process at once?</strong>
+              <p>Standard users can process up to 12 images with 6 resolution variations per batch, resulting in 72 unique assets.</p>
+            </div>
+            <div className={styles.faqItem}>
+              <strong>Does it support high-resolution RAW files?</strong>
+              <p>We support files up to 25MB each. Our sequential queue ensures your browser remains stable during heavy processing.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer className={`${styles.actionArea} ${images.length > 0 ? styles.active : ""}`}>
+        <div className={styles.actionInner}>
           {isProcessing ? (
-            <div className={styles.progressBar}>
-              <div style={{ width: `${progress}%` }}></div>
-              <span>Processing... {progress}%</span>
+            <div className={styles.progressFrame}>
+              <div className={styles.fill} style={{ width: `${progress}%` }}></div>
+              <span className={styles.progressText}>Processing Archive: {progress}%</span>
             </div>
           ) : (
-            <button
-              className={styles.downloadBtn}
-              onClick={handleBatchDownload}
+            <button 
+              className={styles.downloadCta} 
+              onClick={handleBatchExport} 
+              aria-label="Generate and download ZIP archive"
             >
-              Download ZIP ({images.length * targetSizes.length} files)
+              Download Resized Assets (ZIP)
             </button>
           )}
         </div>
       </footer>
-
-      {/* ADSENSE BOTTOM */}
-      <div className={styles.adContainerBottom} aria-hidden="true">
-        <span className={styles.adLabel}>Advertisement</span>
-        <div className={styles.adPlaceholder}></div>
-      </div>
     </article>
   );
 };
