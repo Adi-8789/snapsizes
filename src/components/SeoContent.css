@@ -1,0 +1,141 @@
+/* Container for the SEO Text Layer */
+.seo-container {
+  max-width: 900px;
+  margin: 80px auto 40px;
+  padding: 0 20px;
+  color: #334155;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.7;
+}
+
+/* Section Headers */
+.content-block h2,
+.faq-section h2 {
+  font-size: 1.75rem;
+  color: #0f172a;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+  font-weight: 700;
+}
+
+/* Paragraphs */
+.content-block p {
+  margin-bottom: 24px;
+  font-size: 1.05rem;
+}
+
+/* Numbered Steps Styling */
+.step-list {
+  counter-reset: step-counter;
+  list-style: none;
+  padding: 0;
+  margin: 30px 0;
+}
+
+.step-list li {
+  position: relative;
+  padding-left: 50px;
+  margin-bottom: 20px;
+}
+
+.step-list li::before {
+  counter-increment: step-counter;
+  content: counter(step-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: bold;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 32px;
+  font-size: 0.9rem;
+}
+
+.step-list strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Features Grid (Trust Signals) */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin: 60px 0;
+}
+
+.feature-card {
+  background: #f8fafc;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.feature-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+/* FAQ Section - UPDATED */
+.faq-section {
+  margin-top: 60px;
+  background: white;
+}
+
+.faq-item {
+  margin-bottom: 24px;
+  background: #f8fafc; /* Added background to separate items */
+  padding: 20px;       /* Added padding */
+  border-radius: 8px;  /* Rounded corners */
+}
+
+/* Targeted h5 instead of h3 */
+.faq-item h5 {
+  font-size: 1.1rem;
+  color: #1e293b;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.faq-item p {
+  margin: 0;
+  color: #475569;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  .seo-container {
+    margin-top: 40px;
+  }
+  
+  .content-block h2, 
+  .faq-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}

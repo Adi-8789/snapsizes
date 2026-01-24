@@ -1,42 +1,56 @@
+import React from "react";
 import SeoHead from "../components/SeoHead";
+import styles from "./Legal.module.css"; 
 
 export default function About() {
   return (
-    <div>
+    <article className={styles.legalPage}>
       <SeoHead
-        title="About SnapSizes – Free Online Image Resizer Tool"
-        description="Learn about SnapSizes, a free online image resizer built to help creators resize images for social media easily and privately."
+        title="About SnapSizes - Privacy-First Image Tools"
+        description="Learn about SnapSizes' mission to provide secure, client-side image processing tools. We prioritize speed, privacy, and zero-server uploads."
         canonical="https://snapsizes.vercel.app/about"
       />
 
       <h1>About SnapSizes</h1>
+      <p className={styles.subtitle}>Privacy-First Image Processing for the Modern Web.</p>
 
-      <p>
-        SnapSizes is a free online image resizer created to help creators,
-        marketers, developers, and everyday users resize images for social media
-        platforms quickly and without complexity.
-      </p>
+      <section>
+        <h2>Our Mission</h2>
+        <p>
+          SnapSizes was founded with a simple goal: to provide professional-grade image 
+          manipulation tools that respect user privacy. We believe that you shouldn't have 
+          to upload your personal or professional media to a remote server just to resize 
+          a photo for social media.
+        </p>
+      </section>
 
-      <p>
-        Many users struggle with adjusting image dimensions for different
-        platforms such as Instagram, YouTube Shorts, LinkedIn, or WhatsApp.
-        SnapSizes solves this problem by allowing you to upload an image once
-        and resize or crop it instantly for multiple use cases.
-      </p>
+      <section>
+        <h2>How It Works</h2>
+        <p>
+          Unlike 99% of online converters, SnapSizes operates entirely on the <strong>Client-Side</strong>. 
+          When you "upload" a photo to our tool, it never actually leaves your computer. 
+          We use <strong>HTML5 Canvas</strong> and <strong>WebAssembly</strong> technology 
+          to process the pixels directly in your browser's memory.
+        </p>
+      </section>
 
-      <p>
-        SnapSizes is designed to be simple, fast, and accessible. The tool works
-        entirely in your browser, which means images are processed locally on
-        your device. We do not upload, store, or track your images on any server,
-        ensuring better privacy and control for users.
-      </p>
+      <section>
+        <h2>Why "Browser-Based" Matters</h2>
+        <ul>
+          <li><strong>Speed:</strong> No waiting for uploads or downloads from a server.</li>
+          <li><strong>Security:</strong> Your data is never stored, never seen, and never sold.</li>
+          <li><strong>Offline Access:</strong> Once the page is loaded, the tools can often work even if you lose your connection.</li>
+        </ul>
+      </section>
 
-      <p>
-        Our goal is to provide a reliable and user-friendly image resizing tool
-        without requiring account creation, subscriptions, or software
-        downloads. SnapSizes is continuously improved to support modern
-        workflows and make image resizing easier for everyone.
-      </p>
-    </div>
+      <section>
+        <h2>Our Commitment to Transparency</h2>
+        <p>
+          We support the development of SnapSizes through non-intrusive advertising via 
+          <strong> Google AdSense</strong>. This allows us to keep our core tools free for 
+          everyone while maintaining a high standard of service and security.
+        </p>
+      </section>
+    </article>
   );
 }
