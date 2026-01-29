@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
 
       <header className={styles.aboutHeader}>
         <h1>Privacy Policy</h1>
-        <p className={styles.subtitle}>Last Updated: January 29, 2026</p>
+        <p className={styles.subtitle}>Last Updated: January 30, 2026</p>
       </header>
 
       <section className={styles.storySection}>
@@ -76,9 +76,15 @@ export default function PrivacyPolicy() {
       <section>
         <h2>5. Children's Information</h2>
         <p>
-          SnapSizes does not knowingly collect any Personal Identifiable Information from children under the age of 13. 
-          If you think that your child provided this kind of information on our website, we strongly encourage you to 
-          contact us immediately and we will do our best efforts to promptly remove such information from our records.
+          SnapSizes is a privacy-first, client-side application. 
+          <strong> We do not collect, store, or process any personal data </strong> from any user, 
+          regardless of age.
+        </p>
+        <p>
+          Because no data is ever uploaded to our servers, it is physically impossible for 
+          us to hold information about children under the age of 13. 
+          Parents can rest assured that no "digital footprint" is created when their 
+          children use this tool for school projects or other needs.
         </p>
       </section>
 
