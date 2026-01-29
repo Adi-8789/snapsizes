@@ -3,7 +3,7 @@ import { useEffect } from "react";
 export default function SeoHead({ title, description, canonical }) {
   useEffect(() => {
     /* ===============================
-       BASIC SEO (Existing Logic)
+       1. BASIC SEO (Meta Tags)
     =============================== */
     if (title) document.title = title;
 
@@ -28,23 +28,22 @@ export default function SeoHead({ title, description, canonical }) {
     }
 
     /* ===============================
-       TRUST + APP SCHEMA (NEW)
+       2. DYNAMIC JSON-LD SCHEMA (The "Rich Snippet" Magic)
     =============================== */
     const schemaId = "snapsizes-app-schema";
 
-    // Remove old schema if exists (SPA safety)
+    // Clean up old schema to prevent duplicates
     const existing = document.getElementById(schemaId);
     if (existing) existing.remove();
 
     const schema = {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "SnapSizes – Free Image Resizer",
+      "name": title || "SnapSizes – Free Image Tools", // 🟢 Now Dynamic!
       "url": canonical || "https://snapsizes.vercel.app/",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "All",
-      "description":
-        "SnapSizes is a free online image resizer that processes images locally in your browser. No uploads, no tracking, full privacy.",
+      "description": description || "SnapSizes is a free online image toolsuite.",
       "browserRequirements": "Requires JavaScript",
       "isAccessibleForFree": true,
       "offers": {
@@ -55,9 +54,7 @@ export default function SeoHead({ title, description, canonical }) {
       "creator": {
         "@type": "Organization",
         "name": "SnapSizes"
-      },
-      "privacyPolicy":
-        "https://snapsizes.vercel.app/privacy-policy"
+      }
     };
 
     const faqSchema = {
@@ -66,20 +63,18 @@ export default function SeoHead({ title, description, canonical }) {
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Is SnapSizes free?",
+          "name": "Is this tool free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text":
-              "Yes. SnapSizes is free to use and processes images locally in your browser."
+            "text": "Yes. SnapSizes is 100% free and processes files locally."
           }
         },
         {
           "@type": "Question",
-          "name": "Are images uploaded to a server?",
+          "name": "Is my data safe?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text":
-              "No. All image processing happens locally in your browser. Images are never uploaded."
+            "text": "Yes. We use client-side processing, so your files are never uploaded to a server."
           }
         }
       ]
@@ -93,7 +88,7 @@ export default function SeoHead({ title, description, canonical }) {
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup on route change
+      // Cleanup on page change
       script.remove();
     };
   }, [title, description, canonical]);

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Shield, Heart } from "lucide-react";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
@@ -15,25 +16,29 @@ export default function Footer() {
           </Link>
           <p className={styles.tagline}>
             Fast, secure, and privacy-focused image tools. All processing
-            happens locally in your browser.
+            happens locally in your browser to ensure your data never leaves your device.
           </p>
+          <div className={styles.socialBadges}>
+            <span className={styles.badge}><Shield size={14}/> Secure</span>
+            <span className={styles.badge}><Heart size={14}/> Free</span>
+          </div>
         </div>
 
         {/* Links Grid */}
         <div className={styles.linksGrid}>
           <div className={styles.linkGroup}>
             <h4>Tools</h4>
-            <Link to="/social-media-Imagetool">Social Image Resizer</Link>
+            <Link to="/social-media-imagetool">Social Image Resizer</Link>
             <Link to="/bulk-photo-resizer">Bulk Photo Resizer</Link>
             <Link to="/image-compressor-tool">Image Compressor</Link>
-            <Link to="/image-to-pdf-tool">Image TO PDF Converter</Link>
+            <Link to="/image-to-pdf-tool">Image to PDF Converter</Link>
           </div>
 
           <div className={styles.linkGroup}>
             <h4>Company</h4>
             <Link to="/about">About Us</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/donate">Support SnapSizes</Link>
+            <Link to="/contact">Contact Support</Link>
+            <Link to="/donate">Support the Dev</Link>
           </div>
 
           <div className={styles.linkGroup}>
@@ -50,9 +55,8 @@ export default function Footer() {
       <div className={styles.bottomBar}>
         <div className={styles.bottomContainer}>
           <p>© {currentYear} SnapSizes. Built for privacy and speed.</p>
-          <div className={styles.socialIcons}>
-            {/* Optional: Add icons or "Made with ❤️" text here */}
-            <span>Processing local · Privacy first</span>
+          <div className={styles.madeWith}>
+            Designed in Patna, India 🇮🇳
           </div>
         </div>
       </div>

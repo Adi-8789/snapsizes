@@ -1,4 +1,5 @@
 import React from "react";
+import { Shield, Zap, Globe, Code } from "lucide-react";
 import SeoHead from "../components/SeoHead";
 import styles from "./Legal.module.css"; 
 
@@ -6,50 +7,72 @@ export default function About() {
   return (
     <article className={styles.legalPage}>
       <SeoHead
-        title="About SnapSizes - Privacy-First Image Tools"
-        description="Learn about SnapSizes' mission to provide secure, client-side image processing tools. We prioritize speed, privacy, and zero-server uploads."
+        title="About SnapSizes - The Developer & The Mission"
+        description="Meet the developer behind SnapSizes. A privacy-first, client-side image processing tool built to make the web faster and safer."
         canonical="https://snapsizes.vercel.app/about"
       />
 
-      <h1>About SnapSizes</h1>
-      <p className={styles.subtitle}>Privacy-First Image Processing for the Modern Web.</p>
+      <header className={styles.aboutHeader}>
+        <h1>About SnapSizes</h1>
+        <p className={styles.subtitle}>Built for speed. Engineered for privacy.</p>
+      </header>
 
-      <section>
-        <h2>Our Mission</h2>
+      <section className={styles.storySection}>
+        <h2>👋 The Developer's Story</h2>
         <p>
-          SnapSizes was founded with a simple goal: to provide professional-grade image 
-          manipulation tools that respect user privacy. We believe that you shouldn't have 
-          to upload your personal or professional media to a remote server just to resize 
-          a photo for social media.
+          Hi, I'm the developer behind SnapSizes. I built this platform because I was frustrated with existing online tools. 
+          Every time I needed to resize a simple photo or convert a PDF, I was forced to upload my private files to a random server 
+          and wait for slow processing.
+        </p>
+        <p>
+          I knew there had to be a better way. Using modern web technologies like <strong>React</strong> and <strong>WebAssembly</strong>, 
+          I created SnapSizes to run 100% in your browser. No uploads, no waiting, no privacy risks.
         </p>
       </section>
 
-      <section>
-        <h2>How It Works</h2>
+      <section className={styles.gridSection}>
+        <div className={styles.card}>
+          <Shield className={styles.icon} size={32} />
+          <h3>Privacy First</h3>
+          <p>
+            We operate on a strict <strong>"Zero-Server-Knowledge"</strong> architecture. 
+            Your images are processed locally on your device's CPU/GPU. We physically cannot see your files even if we wanted to.
+          </p>
+        </div>
+
+        <div className={styles.card}>
+          <Zap className={styles.icon} size={32} />
+          <h3>Lightning Fast</h3>
+          <p>
+            By removing the need to upload and download files, SnapSizes is often 10x faster than server-based competitors. 
+            Instant results, right on your screen.
+          </p>
+        </div>
+
+        <div className={styles.card}>
+          <Globe className={styles.icon} size={32} />
+          <h3>Free Forever</h3>
+          <p>
+            We believe essential tools should be accessible to everyone. 
+            This project is supported by non-intrusive ads (Google AdSense), allowing us to keep the servers running without charging you a cent.
+          </p>
+        </div>
+      </section>
+
+      <section className={styles.techSection}>
+        <h2>🛠️ Under the Hood</h2>
         <p>
-          Unlike 99% of online converters, SnapSizes operates entirely on the <strong>Client-Side</strong>. 
-          When you "upload" a photo to our tool, it never actually leaves your computer. 
-          We use <strong>HTML5 Canvas</strong> and <strong>WebAssembly</strong> technology 
-          to process the pixels directly in your browser's memory.
+          For the tech-savvy users, SnapSizes is built as a Progressive Web App (PWA) using the <strong>MERN Stack ecosystem</strong>.
+          We utilize high-performance libraries like <code>jspdf</code> and <code>browser-image-compression</code> to deliver desktop-class performance in a mobile browser.
         </p>
       </section>
 
-      <section>
-        <h2>Why "Browser-Based" Matters</h2>
-        <ul>
-          <li><strong>Speed:</strong> No waiting for uploads or downloads from a server.</li>
-          <li><strong>Security:</strong> Your data is never stored, never seen, and never sold.</li>
-          <li><strong>Offline Access:</strong> Once the page is loaded, the tools can often work even if you lose your connection.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>Our Commitment to Transparency</h2>
+      <section className={styles.contactCta}>
+        <h2>Have a Feature Request?</h2>
         <p>
-          We support the development of SnapSizes through non-intrusive advertising via 
-          <strong> Google AdSense</strong>. This allows us to keep our core tools free for 
-          everyone while maintaining a high standard of service and security.
+          SnapSizes is an actively maintained project. If you find a bug or have an idea for a new tool, I'd love to hear from you.
         </p>
+        <a href="/contact" className={styles.primaryBtn}>Contact the Developer</a>
       </section>
     </article>
   );

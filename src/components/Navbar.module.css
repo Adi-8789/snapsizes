@@ -45,7 +45,9 @@
   background: transparent;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
 }
 
 .navLink:hover, .toolsTrigger:hover {
@@ -56,6 +58,24 @@
 .active {
   color: #2563eb !important;
   background: #eff6ff !important;
+}
+
+/* 🟢 NEW: Chevron Styling & Animation */
+.chevron {
+  margin-left: 6px;
+  font-size: 0.8em;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+/* Rotate arrow when menu is open */
+.toolsTrigger.open .chevron {
+  transform: rotate(180deg);
+}
+
+.toolsTrigger.open {
+  background: #f3f4f6; /* Keep button highlighted when open */
+  color: #111;
 }
 
 /* Mobile Toggle */
@@ -91,6 +111,12 @@
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   list-style: none;
   z-index: 100;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .dropdownItem {
@@ -99,6 +125,8 @@
   color: #111;
   text-decoration: none;
   border-radius: 6px;
+  font-size: 0.95rem;
+  transition: background 0.2s;
 }
 
 .dropdownItem:hover { background: #f3f4f6; }
@@ -113,10 +141,12 @@
 
 .badgeSoon::after {
   content: "SOON";
-  font-size: 8px;
-  background: #eee;
-  padding: 2px 4px;
+  font-size: 9px;
+  background: #f3f4f6;
+  padding: 2px 6px;
   border-radius: 4px;
+  font-weight: 700;
+  color: #6b7280;
 }
 
 /* Mobile Responsiveness */
@@ -130,8 +160,9 @@
     left: 0;
     width: 100%;
     background: white;
-    padding: 20px;
+    padding: 0; /* Removed padding to look cleaner */
     border-bottom: 1px solid #eee;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
   }
 
   .mobileOpen { display: block; }
@@ -140,16 +171,24 @@
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+    padding: 10px;
   }
 
-  .navLink, .toolsTrigger { width: 100%; }
+  .navLink, .toolsTrigger { 
+    width: 100%; 
+    justify-content: space-between; /* Pushes arrow to right on mobile */
+  }
 
+  /* 🟢 Fix Mobile Dropdown */
   .dropdownMenu {
     position: static;
     width: 100%;
     box-shadow: none;
-    background: #f9fafb;
-    margin-top: 10px;
+    border: none;
+    background: #f8fafc; /* Slight grey background for nested items */
+    margin-top: 5px;
+    padding-left: 15px; /* Indent nested items */
+    animation: none;
   }
 }
 

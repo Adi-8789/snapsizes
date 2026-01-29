@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 // Layout Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop"; // 👈 1. IMPORT THIS
 
 // ✅ Home Page (Loads Instantly for SEO)
 import Home from "./pages/Home"; 
@@ -25,6 +26,9 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 export default function App() {
   return (
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      
+      {/* 👈 2. PLACE IT HERE (Watcher) */}
+      <ScrollToTop /> 
       
       {/* 1. Global Navigation */}
       <Navbar />
@@ -50,7 +54,10 @@ export default function App() {
             {/* --- CORE TOOLS --- */}
             <Route path="/" element={<Home />} />
             <Route path="/bulk-photo-resizer" element={<BulkPhotoResizer />} />
-            <Route path="/social-media-Imagetool" element={<SocialMediaImageTool />} />
+            
+            {/* Lowercase path matching */}
+            <Route path="/social-media-imagetool" element={<SocialMediaImageTool />} />
+            
             <Route path="/image-to-pdf-tool" element={<ImageToPdfTool />} />
             <Route path="/image-compressor-tool" element={<ImageCompressorTool />} />
 

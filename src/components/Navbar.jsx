@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
 const TOOLS = [
-  { name: "Image Resizer", path: "/social-media-Imagetool", status: "active" },
+  { name: "Image Resizer", path: "/social-media-imagetool", status: "active" }, // 🟢 Fixed lowercase 'i'
   { name: "Bulk Photo Resizer", path: "/bulk-photo-resizer", status: "active" },
   { name: "Image Compressor", path: "/image-compressor-tool", status: "active" },
   { name: "PDF Converter", path: "/image-to-pdf-tool", status: "active" },
@@ -15,13 +15,11 @@ export default function Navbar() {
   const dropdownRef = useRef(null);
   const location = useLocation();
 
- 
   const handleNavClick = () => {
     setToolsOpen(false);
     setIsMobileOpen(false);
   };
 
-  // Click outside listener (This is an external system sync, so useEffect is correct here)
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -43,6 +41,7 @@ export default function Navbar() {
         <button
           className={styles.hamburger}
           onClick={() => setIsMobileOpen(!isMobileOpen)}
+          aria-label="Toggle navigation"
         >
           <span
             className={`${styles.bar} ${isMobileOpen ? styles.bar1 : ""}`}
@@ -82,17 +81,13 @@ export default function Navbar() {
                 <ul className={styles.dropdownMenu}>
                   {TOOLS.map((tool) => (
                     <li key={tool.name}>
-                      {tool.status === "active" ? (
-                        <Link
-                          to={tool.path}
-                          className={styles.dropdownItem}
-                          onClick={handleNavClick}
-                        >
-                          {tool.name}
-                        </Link>
-                      ) : (
-                        <span className={styles.badgeSoon}>{tool.name}</span>
-                      )}
+                      <Link
+                        to={tool.path}
+                        className={styles.dropdownItem}
+                        onClick={handleNavClick}
+                      >
+                        {tool.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -111,7 +106,8 @@ export default function Navbar() {
             <li>
               <Link
                 to="/about"
-                className={`${styles.navLink} ${location.pathname === "/About" ? styles.active : ""}`}
+                // 🟢 Fixed: Changed "/About" to "/about" to match URL standard
+                className={`${styles.navLink} ${location.pathname === "/about" ? styles.active : ""}`}
                 onClick={handleNavClick}
               >
                 About
@@ -120,7 +116,8 @@ export default function Navbar() {
             <li>
               <Link
                 to="/contact"
-                className={`${styles.navLink} ${location.pathname === "/Contact" ? styles.active : ""}`}
+                // 🟢 Fixed: Changed "/Contact" to "/contact"
+                className={`${styles.navLink} ${location.pathname === "/contact" ? styles.active : ""}`}
                 onClick={handleNavClick}
               >
                 Contact
