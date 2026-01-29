@@ -4,6 +4,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -15,51 +16,12 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Upload, X, RotateCw, GripVertical } from "lucide-react";
+import { Upload, X, RotateCw, GripVertical, Settings } from "lucide-react";
 import SeoHead from "../components/SeoHead";
 import { generatePdf } from "../utils/pdfEngine";
 import "./ImageToPdfTool.css";
 
-// ❌ Removed SeoContent import (No longer needed)
-
-// --- Sub-Component: Dropzone ---
-const Dropzone = ({ onFilesAdded }) => {
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    onFilesAdded(files);
-  };
-  const handleChange = (e) => onFilesAdded(Array.from(e.target.files));
-
-  return (
-    <div
-      className="dropzone"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
-    >
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleChange}
-        id="fileInput"
-        hidden
-      />
-      <div className="icon-wrapper">
-        <Upload size={48} />
-      </div>
-      <h3>Drag & Drop Images Here</h3>
-      <p>
-        or{" "}
-        <label htmlFor="fileInput" className="text-link">
-          browse files
-        </label>
-      </p>
-    </div>
-  );
-};
-
-// --- Sub-Component: Sortable Image Item ---
+// 🟢 NEW: Premium Sortable Card with Overlay UI
 const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
   const {
     attributes,
@@ -75,40 +37,65 @@ const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
     transition,
     zIndex: isDragging ? 999 : "auto",
     opacity: isDragging ? 0.5 : 1,
+    touchAction: "pan-y",
   };
 
   return (
     <div ref={setNodeRef} style={style} className="image-card">
-      <div className="card-header">
-        <span className="badge">Page {index + 1}</span>
-        <button onClick={() => onRemove(index)} className="btn-icon">
-          <X size={14} />
-        </button>
-      </div>
-
-      <div className="img-preview-box">
+      {/* Image Preview Area with Floating Overlays */}
+      <div className="img-preview-wrapper">
         <img
           src={img.url}
           alt={`Page ${index + 1}`}
           style={{ transform: `rotate(${img.rotation}deg)` }}
         />
+
+        {/* Floating Page Badge */}
+        <div className="floating-badge">
+          {index + 1}
+        </div>
+
+        {/* Floating Delete Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevents dragging when clicking delete
+            onRemove(id);
+          }}
+          className="floating-close-btn"
+          type="button"
+          aria-label="Remove image"
+        >
+          <X size={14} />
+        </button>
       </div>
 
-      <div className="card-actions">
-        <button onClick={() => onRotate(index)} className="btn-text">
-          <RotateCw size={14} /> Rotate
+      {/* Slim Footer for Actions */}
+      <div className="card-footer">
+        <button 
+          onClick={() => onRotate(id)} 
+          className="footer-btn" 
+          type="button" 
+          title="Rotate"
+        >
+          <RotateCw size={16} />
         </button>
-        <div className="drag-handle" {...attributes} {...listeners}>
-          <GripVertical size={16} style={{ cursor: "grab" }} />
+
+        <div 
+          className="drag-handle-slim" 
+          {...attributes} 
+          {...listeners} 
+          title="Drag to reorder"
+        >
+          <GripVertical size={18} />
         </div>
       </div>
     </div>
   );
 };
 
-// --- Main Application ---
 export default function ImageToPdf() {
   const [images, setImages] = useState([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [settings, setSettings] = useState({
     pageSize: "a4",
     orientation: "portrait",
@@ -118,19 +105,33 @@ export default function ImageToPdf() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const toolAreaRef = useRef(null);
   const imagesRef = useRef([]);
+
   useEffect(() => {
     imagesRef.current = images;
   }, [images]);
-
   useEffect(() => {
-    return () => {
+    return () =>
       imagesRef.current.forEach((img) => URL.revokeObjectURL(img.url));
-    };
   }, []);
 
+  const hasImages = images.length > 0;
+
+  useEffect(() => {
+    if (hasImages && toolAreaRef.current) {
+      toolAreaRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [hasImages]);
+
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -150,7 +151,7 @@ export default function ImageToPdf() {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (active && over && active.id !== over.id) {
       setImages((items) => {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
@@ -159,26 +160,26 @@ export default function ImageToPdf() {
     }
   };
 
-  const removeImage = (index) => {
-    const copy = [...images];
-    URL.revokeObjectURL(copy[index].url);
-    copy.splice(index, 1);
-    setImages(copy);
+  const removeImage = (id) => {
+    setImages((prev) => {
+      const target = prev.find((img) => img.id === id);
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((img) => img.id !== id);
+    });
   };
 
-  const rotateImage = (index) => {
-    setImages((prev) => {
-      const copy = [...prev];
-      copy[index].rotation = (copy[index].rotation + 90) % 360;
-      return copy;
-    });
+  const rotateImage = (id) => {
+    setImages((prev) =>
+      prev.map((img) =>
+        img.id === id ? { ...img, rotation: (img.rotation + 90) % 360 } : img,
+      ),
+    );
   };
 
   const handleExport = async () => {
     if (images.length === 0) return;
     setIsGenerating(true);
     setProgress(10);
-
     setTimeout(async () => {
       try {
         const pdfBlob = await generatePdf(images, settings, setProgress);
@@ -187,9 +188,9 @@ export default function ImageToPdf() {
         link.href = url;
         link.download = `SnapSizes-${new Date().toISOString().slice(0, 10)}.pdf`;
         link.click();
+        URL.revokeObjectURL(url);
       } catch (error) {
-        console.error("PDF Generation failed:", error);
-        alert("Error generating PDF. Please check the console.");
+        console.error("PDF Error:", error);
       }
       setIsGenerating(false);
       setProgress(100);
@@ -200,7 +201,7 @@ export default function ImageToPdf() {
     <div className="snap-container">
       <SeoHead
         title="JPG to PDF Converter - Convert Images to PDF Free | SnapSizes"
-        description="Convert JPG, PNG, and WebP images to a single PDF document. Drag and drop, reorder pages, and download instantly. Secure client-side processing."
+        description="Convert JPG, PNG, and WebP images to a single PDF document securely in your browser."
         canonical="https://snapsizes.vercel.app/image-to-pdf-tool"
       />
 
@@ -209,10 +210,37 @@ export default function ImageToPdf() {
         <p className="sub-head">Secure, Client-Side, Free.</p>
       </header>
 
-      <main className="tool-workspace">
-        <aside className="tool-sidebar">
+      {hasImages && (
+        <button
+          className="mobile-settings-fab"
+          onClick={() => setIsDrawerOpen(true)}
+          type="button"
+        >
+          <Settings size={18} /> Settings
+        </button>
+      )}
+
+      {/* Backdrop moved outside for Z-index clarity */}
+      {isDrawerOpen && (
+        <div
+          className="drawer-backdrop"
+          onClick={() => setIsDrawerOpen(false)}
+        />
+      )}
+
+      <main className="tool-workspace" ref={toolAreaRef}>
+        <aside className={`tool-sidebar ${isDrawerOpen ? "drawer-open" : ""}`}>
+          <div className="drawer-header">
+            <h3>Settings</h3>
+            <button
+              className="close-drawer"
+              onClick={() => setIsDrawerOpen(false)}
+              type="button"
+            >
+              <X size={20} />
+            </button>
+          </div>
           <div className="settings-group">
-            <h3>Document Settings</h3>
             <label>Page Size</label>
             <select
               value={settings.pageSize}
@@ -223,7 +251,6 @@ export default function ImageToPdf() {
               <option value="a4">A4</option>
               <option value="letter">Letter</option>
             </select>
-
             <label>Margins ({settings.margin}mm)</label>
             <input
               type="range"
@@ -234,11 +261,10 @@ export default function ImageToPdf() {
                 setSettings({ ...settings, margin: Number(e.target.value) })
               }
             />
-
             <button
-              className="btn-primary"
+              className="btn-primary desktop-btn"
               onClick={handleExport}
-              disabled={images.length === 0 || isGenerating}
+              disabled={!hasImages || isGenerating}
             >
               {isGenerating ? `Processing ${progress}%` : "Convert to PDF"}
             </button>
@@ -246,8 +272,23 @@ export default function ImageToPdf() {
         </aside>
 
         <section className="tool-canvas">
-          {images.length === 0 ? (
-            <Dropzone onFilesAdded={handleFiles} />
+          {!hasImages ? (
+            <div
+              className="dropzone-container"
+              onClick={() => document.getElementById("fileInput").click()}
+            >
+              <input
+                type="file"
+                id="fileInput"
+                multiple
+                accept="image/*"
+                onChange={(e) => handleFiles(Array.from(e.target.files))}
+                hidden
+              />
+              <Upload size={48} />
+              <h3>Drag & Drop or Browse</h3>
+              <p>Your files stay private and never leave your device.</p>
+            </div>
           ) : (
             <div className="grid-layout">
               <div className="grid-toolbar">
@@ -255,8 +296,9 @@ export default function ImageToPdf() {
                 <button
                   className="btn-secondary"
                   onClick={() => document.getElementById("addMore").click()}
+                  type="button"
                 >
-                  + Add Images
+                  + Add More
                 </button>
                 <input
                   id="addMore"
@@ -267,7 +309,6 @@ export default function ImageToPdf() {
                   hidden
                 />
               </div>
-
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -293,41 +334,92 @@ export default function ImageToPdf() {
         </section>
       </main>
 
-      {/* 👇 NEW UNIQUE CONTENT (REPLACES SeoContent) */}
-      <article className="seo-content-block" style={{maxWidth: '800px', margin: '40px auto', padding: '20px', lineHeight: '1.6', color: '#333'}}>
-        <h2>How to Convert Images to PDF for Free</h2>
-        <p>
-          Merging multiple images into a single PDF document shouldn't be complicated. 
-          SnapSizes offers a secure, client-side <strong>JPG to PDF converter</strong> that works instantly in your browser. 
-          Whether you have a collection of scanned documents, receipts, or photos, you can compile them into a professional PDF file in seconds.
-        </p>
+      {/* 🚀 SEO CONTENT BLOCK (Updated with Internal Links) */}
+      <article className="seo-content-section">
+        <div className="seo-text-container">
+          <h2>Free Image to PDF Converter – Secure & Instant</h2>
+          <p>
+            Merging multiple photos into a single document shouldn't be complicated. 
+            <strong>SnapSizes</strong> provides a fast, free, and secure way to convert your 
+            JPG, PNG, and WebP images into a professional PDF file directly in your browser.
+          </p>
 
-        <h3>Why use SnapSizes Image to PDF Tool?</h3>
-        <ul>
-          <li><strong>100% Privacy:</strong> Unlike other tools, we do not upload your photos to a server. All processing happens locally on your device using WebAssembly technology.</li>
-          <li><strong>No Limits:</strong> Combine as many JPG, PNG, or WebP images as you need.</li>
-          <li><strong>Perfect Formatting:</strong> Need all your images to be the same size before converting? Use our <a href="/bulk-photo-resizer" style={{color: '#0066cc', textDecoration: 'underline'}}>Bulk Photo Resizer</a> first to standardize dimensions.</li>
-        </ul>
+          {/* 👇 NEW INTERNAL LINKS BOX */}
+          <p style={{ marginTop: '15px', padding: '15px', background: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #0066cc' }}>
+            <strong>💡 Pro Tip:</strong> Are your images too large? Before converting to PDF, you can reduce their file size with our <a href="/image-compressor-tool" style={{color: '#0066cc', textDecoration: 'underline'}}>Image Compressor</a> or change their dimensions using the <a href="/bulk-photo-resizer" style={{color: '#0066cc', textDecoration: 'underline'}}>Bulk Photo Resizer</a>.
+          </p>
 
-        <h3>Step-by-Step Guide</h3>
-        <ol>
-          <li><strong>Upload Images:</strong> Drag and drop your image files into the box above. We support JPG, PNG, and WebP formats.</li>
-          <li><strong>Arrange Pages:</strong> Drag the images to reorder them. The order they appear here is the order they will be in the PDF.</li>
-          <li><strong>Customize:</strong> Use the settings panel to change the page orientation (Portrait/Landscape) or adjust the margins.</li>
-          <li><strong>Download:</strong> Click "Convert to PDF" to generate and save your document instantly.</li>
-        </ol>
+          <div className="features-grid">
+            <div className="feature-item">
+              <h3>🔒 100% Private & Secure</h3>
+              <p>
+                Unlike other converters, we use <strong>Client-Side Processing</strong>. 
+                Your personal photos are never uploaded to our servers. All conversion happens 
+                locally on your device, ensuring your data remains completely private.
+              </p>
+            </div>
+            <div className="feature-item">
+              <h3>⚡ Lightning Fast</h3>
+              <p>
+                No waiting for uploads or downloads. Since the processing happens in your browser, 
+                your PDF is generated instantly, even with high-resolution images.
+              </p>
+            </div>
+            <div className="feature-item">
+              <h3>📱 Mobile Optimized</h3>
+              <p>
+                Whether you're on an iPhone, Android, or desktop, our responsive tool adapts 
+                to your screen. Use our drag-and-drop interface or simple touch controls to 
+                organize your document easily.
+              </p>
+            </div>
+          </div>
 
-        <h3>Frequently Asked Questions</h3>
-        <details>
-          <summary><strong>Is my data safe?</strong></summary>
-          <p>Yes. Since SnapSizes operates entirely in your browser, your personal images never leave your computer. This makes it safe for sensitive documents.</p>
-        </details>
-        <details>
-          <summary><strong>Can I convert PNG to PDF?</strong></summary>
-          <p>Absolutely. Our tool supports PNG, JPEG, and WebP formats, preserving transparency where possible or converting it to a white background for standard PDF compatibility.</p>
-        </details>
+          <h3>How to Convert Images to PDF Online</h3>
+          <ol className="step-list">
+            <li><strong>Upload Images:</strong> Drag and drop your files or tap "Browse" to select photos from your gallery.</li>
+            <li><strong>Arrange Pages:</strong> Drag images to reorder them. The first image will be page 1 of your PDF.</li>
+            <li><strong>Customize Settings:</strong> Choose your preferred page size (A4 or Letter) and adjust margins using the slider.</li>
+            <li><strong>Download:</strong> Click "Convert to PDF" to instantly save your document.</li>
+          </ol>
+
+          <h3>Frequently Asked Questions</h3>
+          <div className="faq-section">
+            <details>
+              <summary>Is this tool free to use?</summary>
+              <p>Yes, SnapSizes is 100% free. There are no daily limits, paywalls, or watermarks on your generated files.</p>
+            </details>
+            <details>
+              <summary>Does SnapSizes store my photos?</summary>
+              <p>No. We operate with a strict privacy-first policy. Your images are processed in your browser's memory and are wiped as soon as you close or refresh the tab.</p>
+            </details>
+            <details>
+              <summary>Can I convert PNG and WebP files?</summary>
+              <p>Absolutely. Our tool supports all major web image formats including JPG/JPEG, PNG, and WebP.</p>
+            </details>
+          </div>
+        </div>
       </article>
-      {/* 👆 END NEW CONTENT */}
+
+      {hasImages && (
+        <div className="mobile-action-bar">
+          <button
+            className="btn-primary"
+            onClick={handleExport}
+            disabled={isGenerating}
+            style={{ flex: 2 }}
+          >
+            {isGenerating ? `Saving ${progress}%` : `Convert PDF`}
+          </button>
+          <button
+            className="btn-outline"
+            onClick={() => setImages([])}
+            style={{ flex: 1 }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
     </div>
   );
 }

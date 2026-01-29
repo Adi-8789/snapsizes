@@ -1,74 +1,56 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { Upload, X, Settings, Plus, Layers, RotateCw } from "lucide-react";
 import SeoHead from "../components/SeoHead";
-import styles from "./BulkPhotoResizer.module.css";
+import "./BulkPhotoResizer.css";
 
-const MAX_FREE_FILES = 12;
-const MAX_PRO_FILES = 60;
-const MAX_FILE_SIZE_MB = 25;
-const QUALITY_DEFAULT = 0.85;
+const MAX_FILES = 50;
+const QUALITY_DEFAULT = 0.9;
 
 const DEFAULT_SIZES = [
-  { w: 1080, h: 1080 },
-  { w: 1920, h: 1080 },
+  { w: 1080, h: 1080, label: "Instagram Square" },
+  { w: 1920, h: 1080, label: "Full HD" },
 ];
 
-const BulkPhotoResizer = () => {
+export default function BulkPhotoResizer() {
   const [images, setImages] = useState([]);
   const [targetSizes, setTargetSizes] = useState(DEFAULT_SIZES);
-  const [widthBuffer, setWidthBuffer] = useState("1200");
-  const [heightBuffer, setHeightBuffer] = useState("1200");
-  const [exportFormat, setExportFormat] = useState("image/jpeg");
+  const [widthBuffer, setWidthBuffer] = useState("");
+  const [heightBuffer, setHeightBuffer] = useState("");
+  const [format, setFormat] = useState("image/jpeg");
   const [quality, setQuality] = useState(QUALITY_DEFAULT);
-  const [isUnlocked] = useState(false);
+  
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const fileInputRef = useRef(null);
-  const imagesRef = useRef(images);
+  const toolAreaRef = useRef(null);
 
+  // Auto-scroll on upload
   useEffect(() => {
-    imagesRef.current = images;
-  }, [images]);
-
-  useEffect(() => {
-    return () => {
-      if (imagesRef.current) {
-        imagesRef.current.forEach(img => {
-          if (img.previewUrl) URL.revokeObjectURL(img.previewUrl);
-        });
-      }
-    };
-  }, []);
-
-  const handleReset = () => {
-    if (images.length > 0 && !window.confirm("Permanently clear workspace?")) return;
-    images.forEach(img => URL.revokeObjectURL(img.previewUrl));
-    setImages([]);
-    setProgress(0);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+    if (images.length > 0 && toolAreaRef.current) {
+      toolAreaRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [images.length]);
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files || []);
-    const limit = isUnlocked ? MAX_PRO_FILES : MAX_FREE_FILES;
-    const remaining = limit - images.length;
-
+    const remaining = MAX_FILES - images.length;
+    
     if (remaining <= 0) {
-      alert(`Limit reached. Please download or clear the current batch.`);
+      alert("Limit reached. Please download or clear the current batch.");
       return;
     }
 
     const newBatch = files.slice(0, remaining)
-      .filter(f => f.size <= MAX_FILE_SIZE_MB * 1024 * 1024)
+      .filter(f => f.type.startsWith("image/"))
       .map(file => ({
-        id: `snapsizes_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        id: Math.random().toString(36).substr(2, 9),
         file,
         previewUrl: URL.createObjectURL(file),
         name: file.name,
-        rotation: 0,
-        flipH: false
+        rotation: 0 // Only Rotate is kept
       }));
 
     setImages(prev => [...prev, ...newBatch]);
@@ -83,269 +65,291 @@ const BulkPhotoResizer = () => {
     });
   };
 
-  const updateTransform = (id, type) => {
-    setImages(prev => prev.map(img => {
-      if (img.id !== id) return img;
-      return type === "rot" ? { ...img, rotation: (img.rotation + 90) % 360 } : { ...img, flipH: !img.flipH };
-    }));
+  const rotateImage = (id) => {
+    setImages(prev => prev.map(img => 
+      img.id === id ? { ...img, rotation: (img.rotation + 90) % 360 } : img
+    ));
   };
 
   const addSize = () => {
-    const w = parseInt(widthBuffer, 10);
-    const h = parseInt(heightBuffer, 10);
-    if (!w || !h || w < 10 || h < 10) return;
-    if (targetSizes.length >= 6) return;
-    if (!targetSizes.find(s => s.w === w && s.h === h)) setTargetSizes([...targetSizes, { w, h }]);
+    const w = parseInt(widthBuffer);
+    const h = parseInt(heightBuffer);
+    if (!w || !h) return;
+    setTargetSizes([...targetSizes, { w, h, label: "Custom" }]);
+    setWidthBuffer("");
+    setHeightBuffer("");
   };
 
-  const processImage = useCallback(async (imgObj, width, height) => {
+  const removeSize = (index) => {
+    setTargetSizes(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const processImage = useCallback(async (imgObj, targetW, targetH) => {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext("2d");
-        if (!ctx) { resolve(null); return; }
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(0, 0, width, height);
-        ctx.translate(width / 2, height / 2);
+
+        canvas.width = targetW;
+        canvas.height = targetH;
+
+        // Fill background white
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, targetW, targetH);
+
+        // Move context to center for rotation
+        ctx.translate(targetW / 2, targetH / 2);
         ctx.rotate((imgObj.rotation * Math.PI) / 180);
-        ctx.scale(imgObj.flipH ? -1 : 1, 1);
-        const scale = Math.max(width / img.width, height / img.height);
-        ctx.drawImage(img, -(img.width * scale) / 2, -(img.height * scale) / 2, img.width * scale, img.height * scale);
+
+        // Determine effective dimensions based on rotation (Swap W/H if 90 or 270 deg)
+        const isRotated = imgObj.rotation % 180 !== 0;
+        const srcW = isRotated ? img.height : img.width;
+        const srcH = isRotated ? img.width : img.height;
+
+        // Calculate Scale (Contain)
+        const scale = Math.min(targetW / srcW, targetH / srcH);
+        
+        // Draw image centered
+        const drawW = img.width * scale;
+        const drawH = img.height * scale;
+        
+        ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+        
         canvas.toBlob(blob => {
-          canvas.width = 0; canvas.height = 0;
           resolve(blob);
-        }, exportFormat, quality);
+        }, format, quality);
       };
       img.src = imgObj.previewUrl;
     });
-  }, [exportFormat, quality]);
+  }, [format, quality]);
 
   const handleBatchExport = async () => {
-    if (images.length === 0 || isProcessing) return;
+    if (images.length === 0 || targetSizes.length === 0) return;
     setIsProcessing(true);
     setProgress(0);
+    
     const zip = new JSZip();
     let count = 0;
+    const totalOps = images.length * targetSizes.length;
+
     try {
       for (const imgData of images) {
         for (const size of targetSizes) {
           const blob = await processImage(imgData, size.w, size.h);
           if (blob) {
-            const ext = exportFormat.split("/")[1];
-            const safeName = imgData.name.replace(/[^\w.-]/gi, '_').split('.')[0];
+            const ext = format === "image/jpeg" ? "jpg" : "png";
+            const safeName = imgData.name.replace(/\.[^/.]+$/, "");
             zip.file(`${safeName}_${size.w}x${size.h}.${ext}`, blob);
           }
           count++;
-          setProgress(Math.round((count / (images.length * targetSizes.length)) * 100));
-          await new Promise(r => setTimeout(r, 10));
+          setProgress(Math.round((count / totalOps) * 100));
+          await new Promise(r => setTimeout(r, 10)); 
         }
       }
+      
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      saveAs(zipBlob, `snapsizes_export_${Date.now()}.zip`);
-    } catch (error) { 
-      console.error("Export Error:", error); 
-    } finally { 
-      setIsProcessing(false); 
-      setProgress(0); 
+      saveAs(zipBlob, `SnapSizes_Batch_${Date.now()}.zip`);
+    } catch (error) {
+      console.error(error);
+      alert("Error processing images.");
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
     }
   };
 
   return (
-    <article className={styles.ultraRoot}>
+    <div className="snap-container">
       <SeoHead
         title="Bulk Image Resizer - Resize Multiple Photos Online | SnapSizes"
         description="Batch resize JPG, PNG, and WebP images instantly. Define multiple target sizes and download as a ZIP. Fast, free, and private."
         canonical="https://snapsizes.vercel.app/bulk-photo-resizer"
       />
 
-      {/* 1. SEO & Editorial Header */}
-      <section className={styles.editorialSection}>
-        <div className={styles.proArticle}>
-          <h1>Professional Bulk Image Resizer & Optimizer</h1>
-          <p>
-            SnapSizes is a high-performance <strong>client-side utility</strong>. 
-            Scale, crop, and optimize your media without compromising privacy.
-          </p>
-          <a href="#tool-dashboard" className={styles.jumpLink}>
-            Jump to Tool ↓
-          </a>
-        </div>
-      </section>
+      <header className="page-header">
+        <h1>Bulk Photo Resizer</h1>
+        <p className="sub-head">Resize dozens of images in seconds.</p>
+      </header>
 
-      <hr className={styles.divider} />
+      {images.length > 0 && (
+        <button
+          className="mobile-settings-fab"
+          onClick={() => setIsDrawerOpen(true)}
+          type="button"
+        >
+          <Settings size={18} /> Configure
+        </button>
+      )}
 
-      {/* 2. MAIN TOOL INTERFACE */}
-      <main id="tool-dashboard" className={styles.dashboardLayout} role="main">
-        <aside className={styles.sidebar}>
-          {/* Step 1: Upload */}
-          <section className={styles.blackCard}>
-            <header className={styles.cardHeader}>
-              <h2 className={styles.label}>1. Source Media</h2>
-              {images.length > 0 && (
-                <button className={styles.resetBtn} onClick={handleReset}>Clear All</button>
-              )}
-            </header>
-            <div className={styles.uploadBoundary}>
-              <input 
-                type="file" multiple accept="image/*" 
-                ref={fileInputRef} hidden onChange={handleFileUpload} 
-              />
-              <button 
-                className={styles.primaryAction} 
-                onClick={() => fileInputRef.current.click()}
-              >
-                {images.length === 0 ? "Select Photos" : `Add Files (${images.length}/${MAX_FREE_FILES})`}
-              </button>
-            </div>
-          </section>
+      {isDrawerOpen && (
+        <div className="drawer-backdrop" onClick={() => setIsDrawerOpen(false)} />
+      )}
 
-          {/* Step 2: Sizes */}
-          <section className={styles.blackCard}>
-            <h2 className={styles.label}>2. Resolution Targets</h2>
-            <div className={styles.tagCloud}>
+      <main className="tool-workspace" ref={toolAreaRef}>
+        <aside className={`tool-sidebar ${isDrawerOpen ? "drawer-open" : ""}`}>
+          <div className="drawer-header">
+            <h3>Resize Settings</h3>
+            <button className="close-drawer" onClick={() => setIsDrawerOpen(false)}>
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="settings-group">
+            <label>Target Sizes</label>
+            <div className="size-list">
               {targetSizes.map((s, i) => (
-                <div key={i} className={styles.tag}>
-                  {s.w}×{s.h}
-                  {targetSizes.length > 1 && (
-                    <button onClick={() => setTargetSizes(targetSizes.filter((_, idx) => idx !== i))}>×</button>
-                  )}
+                <div key={i} className="size-tag">
+                  <span>{s.w} x {s.h}</span>
+                  <button onClick={() => removeSize(i)}><X size={14}/></button>
                 </div>
               ))}
             </div>
-            <div className={styles.inputResponsiveRow}>
-              <div className={styles.inputCol}>
-                <input 
-                  type="text" placeholder="Width" value={widthBuffer} 
-                  onChange={e => setWidthBuffer(e.target.value.replace(/\D/g, ''))} 
-                />
-              </div>
-              <div className={styles.inputCol}>
-                <input 
-                  type="text" placeholder="Height" value={heightBuffer} 
-                  onChange={e => setHeightBuffer(e.target.value.replace(/\D/g, ''))} 
-                />
-              </div>
-              <button className={styles.addBtn} onClick={addSize}>+</button>
+            
+            <div className="add-size-row">
+              <input 
+                type="number" placeholder="W" 
+                value={widthBuffer} onChange={e => setWidthBuffer(e.target.value)}
+              />
+              <span>x</span>
+              <input 
+                type="number" placeholder="H" 
+                value={heightBuffer} onChange={e => setHeightBuffer(e.target.value)}
+              />
+              <button className="btn-add" onClick={addSize} disabled={!widthBuffer || !heightBuffer}>
+                <Plus size={18}/>
+              </button>
             </div>
-          </section>
 
-          {/* Step 3: Format */}
-          <section className={styles.blackCard}>
-            <h2 className={styles.label}>3. Export Profile</h2>
-            <select 
-              className={styles.proSelect} value={exportFormat} 
-              onChange={e => setExportFormat(e.target.value)}
-            >
-              <option value="image/jpeg">JPEG (Compressed)</option>
-              <option value="image/png">PNG (Lossless)</option>
-            </select>
-            {exportFormat === "image/jpeg" && (
-              <div className={styles.qualitySlider}>
-                <div className={styles.qText}>Quality: <strong>{Math.round(quality * 100)}%</strong></div>
-                <input 
-                  type="range" min="0.4" max="1" step="0.05" 
-                  value={quality} onChange={e => setQuality(parseFloat(e.target.value))} 
-                />
+            <label style={{marginTop: 15}}>Output Format</label>
+            <div className="fit-mode-toggle">
+              <button 
+                className={`mode-btn ${format === 'image/jpeg' ? 'active' : ''}`}
+                onClick={() => setFormat('image/jpeg')}
+              >
+                JPG
+              </button>
+              <button 
+                className={`mode-btn ${format === 'image/png' ? 'active' : ''}`}
+                onClick={() => setFormat('image/png')}
+              >
+                PNG
+              </button>
+            </div>
+
+            {format === 'image/jpeg' && (
+              <div className="quality-control">
+                 <label>Quality: {Math.round(quality * 100)}%</label>
+                 <input 
+                   type="range" min="0.5" max="1" step="0.05" 
+                   value={quality} onChange={e => setQuality(parseFloat(e.target.value))}
+                 />
               </div>
             )}
-          </section>
+
+            <button 
+              className="btn-primary desktop-btn"
+              onClick={handleBatchExport}
+              disabled={isProcessing || targetSizes.length === 0}
+            >
+              {isProcessing ? `Processing ${progress}%` : "Resize Batch (ZIP)"}
+            </button>
+          </div>
         </aside>
 
-        {/* Workspace area */}
-        <section className={styles.workspace}>
-          <header className={styles.stageHead}>
-            <h3 className={styles.stageTitle}>Active Queue</h3>
-            <span className={styles.badge}>{images.length * targetSizes.length} Exports Pending</span>
-          </header>
-
-          <div className={styles.assetGrid}>
-            {images.map(img => (
-              <div key={img.id} className={styles.assetCard}>
-                <div className={styles.previewBox}>
-                  <img 
-                    src={img.previewUrl} alt={img.name} 
-                    style={{ transform: `rotate(${img.rotation}deg) scale(${img.flipH ? -1 : 1}, 1)` }} 
-                  />
-                </div>
-                <div className={styles.assetMeta}>
-                  <p className={styles.filename}>{img.name}</p>
-                  <nav className={styles.assetTools}>
-                    <button onClick={() => updateTransform(img.id, "rot")}>↻</button>
-                    <button onClick={() => updateTransform(img.id, "flip")}>↔</button>
-                    <button className={styles.dangerBtn} onClick={() => removeImage(img.id)}>×</button>
-                  </nav>
-                </div>
+        <section className="tool-canvas">
+          {images.length === 0 ? (
+            <div className="dropzone-container" onClick={() => document.getElementById("bulkInput").click()}>
+              <input type="file" id="bulkInput" multiple accept="image/*" onChange={handleFileUpload} hidden />
+              <Layers size={48} />
+              <h3>Upload Batch</h3>
+              <p>Drag & drop up to 50 images.</p>
+            </div>
+          ) : (
+            <div className="grid-layout">
+               <div className="grid-toolbar">
+                <h2>Queue ({images.length})</h2>
+                <button
+                  className="btn-secondary"
+                  onClick={() => document.getElementById("addMoreBulk").click()}
+                  type="button"
+                >
+                  + Add More
+                </button>
+                <input type="file" id="addMoreBulk" multiple accept="image/*" onChange={handleFileUpload} hidden />
               </div>
-            ))}
-            {images.length === 0 && (
-              <div className={styles.emptyPrompt}>Workspace idle. Import photos to begin.</div>
-            )}
-          </div>
+
+              <div className="image-grid">
+                {images.map((img) => (
+                  <div key={img.id} className="image-card">
+                    <div className="img-preview-wrapper">
+                      <img 
+                        src={img.previewUrl} 
+                        alt={img.name} 
+                        style={{ 
+                          transform: `rotate(${img.rotation}deg)`,
+                          transition: 'transform 0.2s'
+                        }}
+                      />
+                      <button onClick={() => removeImage(img.id)} className="floating-close-btn">
+                        <X size={14} />
+                      </button>
+                    </div>
+                    
+                    {/* Card Toolbar - Only Rotate & Name */}
+                    <div className="card-toolbar">
+                       <button onClick={() => rotateImage(img.id)} title="Rotate"><RotateCw size={16}/></button>
+                       <span className="file-name">{img.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
       </main>
 
-      {/* 3. NEW UNIQUE SEO CONTENT BLOCK */}
-      <article className="seo-content-block" style={{maxWidth: '800px', margin: '40px auto', padding: '20px', lineHeight: '1.6', color: '#333'}}>
-        <h2>The Fastest Way to Resize Photos for Social Media</h2>
-        <p>
-          Managing images for multiple social media platforms can be a hassle. Instagram needs square posts, 
-          YouTube needs a 16:9 thumbnail, and LinkedIn prefers portrait mode. 
-          SnapSizes is the ultimate <strong>Bulk Photo Resizer</strong> that lets you crop, resize, and edit multiple images at once—directly in your browser.
-        </p>
-
-        <h3>Why Resize Images Locally?</h3>
-        <p>
-          Most online resizers upload your photos to a cloud server, process them, and send them back. 
-          This is slow and risks your privacy. SnapSizes is different. 
-          Our <strong>Client-Side Resizing Engine</strong> processes your photos using your device's own power. 
-          This means:
-        </p>
-        <ul>
-          <li><strong>Zero Wait Times:</strong> No uploading or downloading delays.</li>
-          <li><strong>100% Secure:</strong> Your personal photos never leave your device.</li>
-          <li><strong>High Quality:</strong> We use advanced algorithms to maintain sharpness while reducing dimensions.</li>
-        </ul>
-
-        <h3>Supported Social Media Presets</h3>
-        <p>Stop guessing the correct pixel dimensions. Our tool includes one-click presets for:</p>
-        <ul>
-          <li><strong>Instagram:</strong> Square (1080x1080), Portrait (1080x1350), Story (1080x1920).</li>
-          <li><strong>YouTube:</strong> Thumbnails (1280x720) and Channel Art.</li>
-          <li><strong>Twitter/X:</strong> In-stream headers and profile photos.</li>
-          <li><strong>LinkedIn & Facebook:</strong> Cover photos and post images.</li>
-        </ul>
-
-        <h3>Frequently Asked Questions</h3>
-        <details>
-          <summary><strong>Does this tool reduce image quality?</strong></summary>
-          <p>We optimize images for web use, which balances quality and file size. Your images will look crisp on screens while loading faster.</p>
-        </details>
-        <details>
-          <summary><strong>Is there a limit on file size?</strong></summary>
-          <p>Since we process files on your device, the only limit is your computer's memory (RAM). Most users can easily resize 50+ high-resolution photos without issues.</p>
-        </details>
-      </article>
-      {/* 👆 END SEO CONTENT */}
-
-      {/* 4. FLOATING ACTION BAR */}
-      <footer className={`${styles.actionArea} ${images.length > 0 ? styles.active : ""}`}>
-        <div className={styles.actionInner}>
-          {isProcessing ? (
-            <div className={styles.progressFrame}>
-              <div className={styles.fill} style={{ width: `${progress}%` }}></div>
-              <span className={styles.progressText}>Zipping Archive: {progress}%</span>
+      {/* SEO Content */}
+      <article className="seo-content-section">
+        <div className="seo-text-container">
+          <h2>The Fastest Way to Resize Photos for Social Media</h2>
+          <p>
+            Managing images for multiple social media platforms can be a hassle. Instagram needs square posts, 
+            YouTube needs a 16:9 thumbnail, and LinkedIn prefers portrait mode. 
+            SnapSizes is the ultimate <strong>Bulk Photo Resizer</strong> that lets you crop, resize, and edit multiple images at once—directly in your browser.
+          </p>
+          <p style={{ marginTop: '15px', padding: '15px', background: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #0066cc' }}>
+            <strong>💡 Pro Tip:</strong> If you only need to reduce the file size (MB) without changing the dimensions, try our <a href="/image-compressor-tool" style={{color: '#0066cc', textDecoration: 'underline'}}>Image Compressor</a>.
+          </p>
+          <div className="features-grid">
+            <div className="feature-item">
+              <h3>⚡ Zero Wait Times</h3>
+              <p>No uploading or downloading delays. We process everything locally on your device.</p>
             </div>
-          ) : (
-            <button className={styles.downloadCta} onClick={handleBatchExport}>
-              Download Resized Assets (ZIP)
-            </button>
-          )}
+            <div className="feature-item">
+              <h3>🔒 100% Secure</h3>
+              <p>Your personal photos never leave your device. We operate with a strict privacy-first policy.</p>
+            </div>
+          </div>
         </div>
-      </footer>
-    </article>
-  );
-};
+      </article>
 
-export default BulkPhotoResizer;
+      {/* Mobile Sticky Bar */}
+      {images.length > 0 && (
+        <div className="mobile-action-bar">
+          <button 
+            className="btn-primary" 
+            onClick={handleBatchExport} 
+            disabled={isProcessing || targetSizes.length === 0}
+            style={{flex: 2}}
+          >
+            {isProcessing ? `Working ${progress}%` : "Resize ZIP"}
+          </button>
+          <button className="btn-outline" onClick={() => setImages([])} style={{flex: 1}}>
+            Clear
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

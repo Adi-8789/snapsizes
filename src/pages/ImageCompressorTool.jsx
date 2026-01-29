@@ -1,275 +1,368 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Upload, X, Settings, Download, Image as ImageIcon, CheckCircle, Loader2 } from "lucide-react";
 import SeoHead from "../components/SeoHead";
-import styles from "./ImageCompressorTool.module.css";
+import "./ImageCompressorTool.css";
 
-const ImageCompressorTool = () => {
-  const [sourceImage, setSourceImage] = useState(null);
-  const [originalFile, setOriginalFile] = useState(null);
-  const [compressedBlob, setCompressedBlob] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [quality, setQuality] = useState(0.7);
+// --- Utility: Client-Side Compression ---
+const compressImage = (file, quality) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        
+        // Compress using JPEG format (works best for compression)
+        canvas.toBlob(
+          (blob) => {
+            resolve({
+              file: file, // Store original file for re-compression
+              blob,
+              url: URL.createObjectURL(blob),
+              originalSize: file.size,
+              compressedSize: blob.size,
+              name: file.name,
+              id: Math.random().toString(36).substr(2, 9),
+            });
+          },
+          "image/jpeg",
+          quality / 100 // Convert 0-100 to 0.0-1.0
+        );
+      };
+    };
+  });
+};
+
+const formatSize = (bytes) => {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+export default function ImageCompressorTool() {
+  const [images, setImages] = useState([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [quality, setQuality] = useState(75); // Default 75% quality
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const fileInputRef = useRef(null);
+  const toolAreaRef = useRef(null);
 
-  // 1. Upload Engine
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file || !file.type.startsWith("image/")) return;
-
-    setOriginalFile(file);
-    setCompressedBlob(null); // Reset previous compression
-
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      setSourceImage(img);
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  };
-
-  // 2. Memory-Safe Preview URL Management
+  // Auto-scroll when images are added
   useEffect(() => {
-    const target = compressedBlob || originalFile;
-    if (!target) return;
+    if (images.length > 0 && toolAreaRef.current) {
+      toolAreaRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    // 🟢 FIXED: Removed the unused eslint-disable comment here
+  }, [images.length]);
 
-    let url;
-    const handle = requestAnimationFrame(() => {
-      url = URL.createObjectURL(target);
-      setPreviewUrl(url);
-    });
-
-    return () => {
-      cancelAnimationFrame(handle);
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [compressedBlob, originalFile]);
-
-  // 3. Compression Engine
+  // Re-compress when quality changes
   useEffect(() => {
-    if (!sourceImage) return;
-
-    const compress = () => {
+    if (images.length === 0) return;
+    
+    // Debounce to prevent freezing while sliding
+    const timeout = setTimeout(async () => {
       setIsProcessing(true);
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      canvas.width = sourceImage.width;
-      canvas.height = sourceImage.height;
-
-      // Fill white background for transparent PNGs converting to JPEG
-      ctx.fillStyle = "#FFFFFF"; 
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      ctx.drawImage(sourceImage, 0, 0);
-
-      canvas.toBlob(
-        (blob) => {
-          setCompressedBlob(blob);
-          setIsProcessing(false);
-        },
-        "image/jpeg",
-        quality
+      // Re-compress all images using their original file
+      const newImages = await Promise.all(
+        images.map(img => compressImage(img.file, quality))
       );
-    };
+      
+      setImages(newImages);
+      setIsProcessing(false);
+    }, 500);
 
-    // Debounce compression to avoid freezing UI
-    const timer = setTimeout(compress, 150);
-    return () => clearTimeout(timer);
-  }, [sourceImage, quality]);
+    return () => clearTimeout(timeout);
+    
+  // We disable the dependency warning here because adding 'images' 
+  // would cause an infinite loop (since we setImages inside).
+  // We only want this to run when 'quality' changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quality]);
 
-  // 4. Download Logic
-  const handleDownload = () => {
-    if (!compressedBlob) return;
-    const url = URL.createObjectURL(compressedBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    const baseName = originalFile.name.substring(0, originalFile.name.lastIndexOf('.')) || originalFile.name;
-    link.download = `SnapSizes_Optimized_${baseName}.jpg`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleFiles = async (files) => {
+    setIsProcessing(true);
+    const validFiles = files.filter((f) => f.type.startsWith("image/"));
+    
+    const compressedResults = await Promise.all(
+      validFiles.map((f) => compressImage(f, quality))
+    );
+    
+    setImages((prev) => [...prev, ...compressedResults]);
+    setIsProcessing(false);
   };
 
-  const formatSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  const removeImage = (id) => {
+    setImages((prev) => {
+      const target = prev.find((img) => img.id === id);
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((img) => img.id !== id);
+    });
+  };
+
+  const handleDownload = (img) => {
+    const link = document.createElement("a");
+    link.href = img.url;
+    link.download = `min-${img.name}`; // Prefix with 'min-'
+    link.click();
+  };
+
+  const handleDownloadAll = () => {
+    images.forEach((img) => handleDownload(img));
   };
 
   return (
-    <div className={styles.container}>
+    <div className="snap-container">
       <SeoHead
-        title="Image Compressor - Reduce File Size Online | SnapSizes"
-        description="Compress JPG, PNG, and WebP images locally. Reduce file size by up to 90% without losing quality. Secure, fast, and free."
+        title="Image Compressor - Reduce Image Size Online Free | SnapSizes"
+        description="Compress JPG, PNG, and WebP images by up to 80% without losing quality. Fast, secure, and client-side."
         canonical="https://snapsizes.vercel.app/image-compressor-tool"
       />
 
-      <header className={styles.hero}>
-        <h1 className={styles.h1}>
-          Professional Image Compressor{" "}
-          <span className={styles.badge}>Secure & Private</span>
-        </h1>
-        <div className={styles.seoIntro}>
-          <p className={styles.introText}>
-            Optimize your digital assets with our{" "}
-            <strong>lossy image compression engine</strong>. SnapSizes provides
-            a high-fidelity solution to reduce file size while maintaining
-            original pixel dimensions. Designed for web developers and creators
-            who need to balance <strong>loading speed</strong> with{" "}
-            <strong>visual quality</strong>.
-          </p>
-          <div className={styles.trustBar}>
-            <span>🔒 No Server Uploads</span>
-            <span>⚡ Instant GPU Processing</span>
-            <span>📉 Up to 90% Savings</span>
-            <span>✅ 100% Free</span>
-          </div>
-        </div>
+      <header className="page-header">
+        <h1>SnapSizes – Image Compressor</h1>
+        <p className="sub-head">Reduce file size, not quality.</p>
       </header>
 
-      {!sourceImage ? (
-        <section className={styles.uploadArea}>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept="image/jpeg,image/png,image/webp"
-            hidden
-            id="compress-upload"
-          />
-          <label htmlFor="compress-upload" className={styles.dropzone}>
-            <span className={styles.icon}>🗜️</span>
-            <strong>Select Image for Compression</strong>
-            <span>Preserve full resolution, reduce disk space</span>
-          </label>
-        </section>
-      ) : (
-        <div className={styles.workspace}>
-          <aside className={styles.controls}>
-            <div className={styles.panel}>
-              <h3 className={styles.panelTitle}>Compression Level</h3>
-
-              <div className={styles.controlGroup}>
-                <div className={styles.labelRow}>
-                  <label htmlFor="quality-slider">Quality Strength</label>
-                  <span className={styles.qualityVal}>
-                    {Math.round(quality * 100)}%
-                  </span>
-                </div>
-                <input
-                  id="quality-slider"
-                  type="range"
-                  min="0.1"
-                  max="1"
-                  step="0.05"
-                  value={quality}
-                  onChange={(e) => setQuality(parseFloat(e.target.value))}
-                  className={styles.slider}
-                />
-                <p className={styles.helperText}>
-                  Maintaining 100% dimensions: {sourceImage.width}px ×{" "}
-                  {sourceImage.height}px
-                </p>
-              </div>
-
-              <div className={styles.stats}>
-                <div className={styles.statRow}>
-                  <span>Original File:</span>
-                  <strong>{formatSize(originalFile.size)}</strong>
-                </div>
-                <div className={styles.statRow}>
-                  <span>Optimized File:</span>
-                  <strong className={styles.savings}>
-                    {compressedBlob ? formatSize(compressedBlob.size) : "Calculating..."}
-                  </strong>
-                </div>
-                {compressedBlob && (
-                  <div className={styles.reductionBadge}>
-                    {Math.max(0, Math.round((1 - compressedBlob.size / originalFile.size) * 100))}
-                    % Smaller
-                  </div>
-                )}
-              </div>
-
-              <button
-                className={styles.downloadBtn}
-                onClick={handleDownload}
-                disabled={isProcessing || !compressedBlob}
-              >
-                {isProcessing
-                  ? "Optimizing Data..."
-                  : "Download Optimized Image"}
-              </button>
-              <button
-                className={styles.resetBtn}
-                onClick={() => setSourceImage(null)}
-              >
-                Choose Different Image
-              </button>
-            </div>
-          </aside>
-
-          <main className={styles.preview}>
-            <div className={styles.previewCard}>
-              <div className={styles.imageWrap}>
-                {previewUrl && (
-                  <img
-                    src={previewUrl}
-                    alt="Preview of compressed result"
-                    className={styles.previewImg}
-                  />
-                )}
-              </div>
-              <div className={styles.previewLabel}>Full-Resolution Preview</div>
-            </div>
-          </main>
-        </div>
+      {images.length > 0 && (
+        <button
+          className="mobile-settings-fab"
+          onClick={() => setIsDrawerOpen(true)}
+          type="button"
+        >
+          <Settings size={18} /> Settings
+        </button>
       )}
 
-      {/* 👇 NEW UNIQUE SEO CONTENT WITH INTERNAL LINKS */}
-      <article className="seo-content-block" style={{maxWidth: '800px', margin: '40px auto', padding: '20px', lineHeight: '1.6', color: '#333'}}>
-        
-        <h2>Free Online Image Compressor: Reduce File Size, Keep Quality</h2>
-        <p>
-          Large images slow down websites and take up unnecessary storage space. 
-          SnapSizes provides a powerful <strong>Image Compressor</strong> that significantly reduces the file size of your JPG, PNG, and WebP images without noticeable quality loss.
-          This is especially useful if you are preparing images for a website or using our <a href="/social-media-Imagetool" style={{color: '#0066cc', textDecoration: 'underline'}}>Social Media Image Tool</a> for Instagram posts.
-        </p>
+      {isDrawerOpen && (
+        <div className="drawer-backdrop" onClick={() => setIsDrawerOpen(false)} />
+      )}
 
-        <h3>How Does SnapSizes Compression Work?</h3>
-        <p>
-          We use smart lossy compression techniques to selectively decrease the number of colors in the image data. 
-          This requires fewer bytes to store the data. The effect is nearly invisible to the eye, but it makes a huge difference in file size.
-        </p>
-        <ul>
-          <li><strong>Smart Compression:</strong> Automatically finds the best balance between quality and file size.</li>
-          <li><strong>Batch Processing:</strong> Compress multiple images at once to save time.</li>
-          <li><strong>Need Resizing?</strong> If you only need to change the dimensions (width/height) rather than file size, use our <a href="/bulk-photo-resizer" style={{color: '#0066cc', textDecoration: 'underline'}}>Bulk Photo Resizer</a> instead.</li>
-        </ul>
+      <main className="tool-workspace" ref={toolAreaRef}>
+        {/* Sidebar / Drawer */}
+        <aside className={`tool-sidebar ${isDrawerOpen ? "drawer-open" : ""}`}>
+          <div className="drawer-header">
+            <h3>Compression Settings</h3>
+            <button
+              className="close-drawer"
+              onClick={() => setIsDrawerOpen(false)}
+              type="button"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          
+          <div className="settings-group">
+            <div className="quality-display">
+              <label>Quality Level</label>
+              <span className="badge-primary">{quality}%</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={quality}
+              onChange={(e) => {
+                setQuality(Number(e.target.value));
+              }}
+            />
+            <p className="hint-text">Lower quality = Smaller file size.</p>
 
-        <h3>Why Website Speed Matters</h3>
-        <p>
-          If you are a web developer or site owner, optimizing images is crucial.
-          Google uses "Page Speed" as a ranking factor. Heavy images are the #1 reason for slow websites.
-          By using SnapSizes, you can reduce your page load time, improve user experience, and boost your SEO rankings.
-        </p>
+            <button
+              className="btn-primary desktop-btn"
+              onClick={handleDownloadAll}
+              disabled={images.length === 0 || isProcessing}
+            >
+              {isProcessing ? (
+                 <>
+                   <Loader2 className="animate-spin" size={18} style={{ marginRight: 8 }} /> Optimizing...
+                 </>
+              ) : (
+                 <>
+                   <Download size={18} style={{ marginRight: 8 }} /> Download All
+                 </>
+              )}
+            </button>
+          </div>
+        </aside>
 
-        <h3>Frequently Asked Questions</h3>
-        <details>
-          <summary><strong>Is it safe to compress private photos?</strong></summary>
-          <p>Yes. SnapSizes runs entirely in your browser. Your images are never sent to a server, so nobody else can see them.</p>
-        </details>
-        <details>
-          <summary><strong>What formats do you support?</strong></summary>
-          <p>We support the most common web formats: JPG (JPEG), PNG, and WebP.</p>
-        </details>
+        {/* Canvas Area */}
+        <section className="tool-canvas">
+          {images.length === 0 ? (
+            <div
+              className="dropzone-container"
+              onClick={() => document.getElementById("compressInput").click()}
+            >
+              <input
+                type="file"
+                id="compressInput"
+                multiple
+                accept="image/*"
+                onChange={(e) => handleFiles(Array.from(e.target.files))}
+                hidden
+              />
+              <ImageIcon size={48} />
+              <h3>Drag & Drop Images</h3>
+              <p>Compress JPG, PNG, WebP instantly.</p>
+            </div>
+          ) : (
+            <div className="grid-layout">
+              <div className="grid-toolbar">
+                <h2>Images ({images.length})</h2>
+                <button
+                  className="btn-secondary"
+                  onClick={() => document.getElementById("addMoreCompress").click()}
+                  type="button"
+                  disabled={isProcessing}
+                >
+                  + Add More
+                </button>
+                <input
+                  id="addMoreCompress"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => handleFiles(Array.from(e.target.files))}
+                  hidden
+                />
+              </div>
+
+              <div className="image-grid">
+                {images.map((img) => {
+                  const saved = ((img.originalSize - img.compressedSize) / img.originalSize) * 100;
+                  return (
+                    <div key={img.id} className="image-card compress-card">
+                      <div className="img-preview-wrapper">
+                        <img src={img.url} alt="Compressed preview" style={{ opacity: isProcessing ? 0.5 : 1 }} />
+                        <button
+                          onClick={() => removeImage(img.id)}
+                          className="floating-close-btn"
+                          type="button"
+                        >
+                          <X size={14} />
+                        </button>
+                        <div className="savings-badge">
+                          ⬇ {saved.toFixed(0)}%
+                        </div>
+                      </div>
+                      
+                      <div className="compress-details">
+                        <div className="size-row">
+                          <span className="old-size">{formatSize(img.originalSize)}</span>
+                          <span className="arrow">→</span>
+                          <span className="new-size">{formatSize(img.compressedSize)}</span>
+                        </div>
+                        <button 
+                          className="btn-download-mini" 
+                          onClick={() => handleDownload(img)}
+                          disabled={isProcessing}
+                        >
+                          <Download size={14} /> Save
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* 🚀 SEO CONTENT BLOCK (AdSense Optimized + Internal Links) */}
+      <article className="seo-content-section">
+        <div className="seo-text-container">
+          <h2>Reduce Image Size Online – Free & Secure</h2>
+          <p>
+            Large images slow down websites and take up unnecessary storage space. 
+            <strong>SnapSizes Image Compressor</strong> allows you to shrink photo file sizes 
+            by up to 80% while maintaining excellent visual quality.
+          </p>
+          
+          <p style={{ marginTop: '15px', padding: '15px', background: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #0066cc' }}>
+            <strong>💡 Pro Tip:</strong> If you need to crop images for Instagram or change dimensions (width/height) instead of file size, 
+            try our <a href="/social-media-imagetool" style={{color: '#0066cc', textDecoration: 'underline'}}>Social Media Image Tool</a> or 
+            the <a href="/bulk-photo-resizer" style={{color: '#0066cc', textDecoration: 'underline'}}>Bulk Photo Resizer</a>.
+          </p>
+
+          <div className="features-grid">
+            <div className="feature-item">
+              <h3>⚡ Boost Website Speed</h3>
+              <p>
+                Compressed images load faster, improving your SEO rankings and user experience. 
+                Perfect for bloggers, developers, and social media managers.
+              </p>
+            </div>
+            <div className="feature-item">
+              <h3>🔒 Secure Client-Side Compression</h3>
+              <p>
+                Your photos never leave your device. Our advanced browser-based compression engine 
+                processes everything locally, ensuring 100% privacy.
+              </p>
+            </div>
+            <div className="feature-item">
+              <h3>📉 Smart Compression Algorithm</h3>
+              <p>
+                We use intelligent lossy compression to reduce file size significantly while 
+                keeping the parts of the image that the human eye actually sees.
+              </p>
+            </div>
+          </div>
+
+          <h3>How to Compress Images for Free</h3>
+          <ol className="step-list">
+            <li><strong>Upload:</strong> Select your JPG, PNG, or WebP images.</li>
+            <li><strong>Adjust:</strong> Use the quality slider to find the perfect balance between size and quality.</li>
+            <li><strong>Preview:</strong> See the "Before" and "After" file sizes instantly.</li>
+            <li><strong>Download:</strong> Save your optimized images individually or all at once.</li>
+          </ol>
+
+          <h3>FAQ</h3>
+          <div className="faq-section">
+            <details>
+              <summary>Will I lose image quality?</summary>
+              <p>Our tool aims for "visually lossless" compression. This means we remove data you can't see, reducing file size without noticeable blurriness.</p>
+            </details>
+            <details>
+              <summary>What formats are supported?</summary>
+              <p>We support all modern web formats including JPEG, PNG, and WebP.</p>
+            </details>
+            <details>
+              <summary>Is this better than resizing?</summary>
+              <p>Compression reduces file size (KB/MB) without changing dimensions. If you need to change the pixel width, use our <a href="/bulk-photo-resizer" style={{color: '#2563eb'}}>Bulk Resizer</a>.</p>
+            </details>
+          </div>
+        </div>
       </article>
-      {/* 👆 END SEO CONTENT */}
+
+      {/* Sticky Mobile Action Bar */}
+      {images.length > 0 && (
+        <div className="mobile-action-bar">
+          <button
+            className="btn-primary"
+            onClick={handleDownloadAll}
+            style={{ flex: 2 }}
+            disabled={isProcessing}
+          >
+            {isProcessing ? "Optimizing..." : "Download All"}
+          </button>
+          <button
+            className="btn-outline"
+            onClick={() => setImages([])}
+            style={{ flex: 1 }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
     </div>
   );
-};
-
-export default ImageCompressorTool;
+}
