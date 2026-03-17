@@ -1,82 +1,97 @@
-import React, { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { Suspense, lazy, useEffect } from "react"; 
+import { Routes, Route, useLocation } from "react-router-dom"; 
+import ReactGA from "react-ga4"; 
 
 // Layout Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import ScrollToTop from "./components/ScrollToTop"; // 👈 1. IMPORT THIS
+import ScrollToTop from "./components/ScrollToTop";
+import CookieBanner from "./components/CookieBanner";
 
-// ✅ Home Page (Loads Instantly for SEO)
-import Home from "./pages/Home"; 
+// ✅ Home Page
+import Home from "./pages/Home";
 
-// ⚡ Tools (Lazy Loaded for Speed)
+// ⚡ Tools (Lazy Loaded)
 const BulkPhotoResizer = lazy(() => import("./pages/BulkPhotoResizer"));
 const SocialMediaImageTool = lazy(() => import("./pages/SocialMediaImageTool"));
 const ImageToPdfTool = lazy(() => import("./pages/ImageToPdfTool"));
 const ImageCompressorTool = lazy(() => import("./pages/ImageCompressorTool"));
+const YoutubeThumbnailDownloader = lazy(() => import("./pages/YoutubeThumbnailDownloader"));
 
-// 📄 Info Pages (Lazy Loaded)
+// 📄 Info Pages
 const About = lazy(() => import("./pages/About"));
 const Donate = lazy(() => import("./pages/Donate"));
 const Contact = lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const CaseConverterTool = lazy(() => import("./pages/CaseConverterTool"));
+
+// 🟢 INITIALIZE GA4 (Use your specific ID)
+ReactGA.initialize("G-HSHVL7TBBP");
 
 export default function App() {
+  const location = useLocation(); // 🟢 Listen for URL changes
+
+  useEffect(() => {
+    // 🟢 Send pageview to Google Analytics whenever location changes
+    ReactGA.send({ 
+      hitType: "pageview", 
+      page: location.pathname + location.search 
+    });
+  }, [location]);
+
   return (
-    <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      
-      {/* 👈 2. PLACE IT HERE (Watcher) */}
-      <ScrollToTop /> 
-      
-      {/* 1. Global Navigation */}
+    <div
+      className="app-container"
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
+      <ScrollToTop />
+
       <Navbar />
 
-      {/* 2. Main Content Area */}
-      <main style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
-        
-        {/* Suspense shows a loading text while the heavy tool downloads */}
-        <Suspense fallback={
-          <div style={{
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            height: '50vh', 
-            fontSize: '1.2rem', 
-            color: '#666',
-            fontWeight: '500'
-          }}>
-            Loading Tool...
-          </div>
-        }>
+      <main
+        style={{
+          flex: 1,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Suspense
+          fallback={
+            <div
+              className="flex justify-center items-center h-[50vh] text-slate-500 font-medium"
+            >
+              Loading Tool...
+            </div>
+          }
+        >
           <Routes>
-            {/* --- CORE TOOLS --- */}
             <Route path="/" element={<Home />} />
             <Route path="/bulk-photo-resizer" element={<BulkPhotoResizer />} />
-            
-            {/* Lowercase path matching */}
             <Route path="/social-media-imagetool" element={<SocialMediaImageTool />} />
-            
             <Route path="/image-to-pdf-tool" element={<ImageToPdfTool />} />
             <Route path="/image-compressor-tool" element={<ImageCompressorTool />} />
+            <Route path="/youtube-thumbnail-downloader" element={<YoutubeThumbnailDownloader />} />
 
-            {/* --- INFO PAGES --- */}
             <Route path="/about" element={<About />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/case-converter" element={<CaseConverterTool />} />
 
-            {/* --- 404 CATCH-ALL --- */}
-            <Route path="*" element={<Home />} />
+            <Route path="*" element={<NotFound />} /> 
           </Routes>
         </Suspense>
       </main>
 
-      {/* 3. Global Footer */}
       <Footer />
+
+      <CookieBanner /> 
     </div>
   );
 }

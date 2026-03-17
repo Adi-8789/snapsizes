@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="snapYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" /> <stop offset="100%" stop-color="#F59E0B" /> </linearGradient>
+    <linearGradient id="snapDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" /> <stop offset="100%" stop-color="#0F172A" /> </linearGradient>
+  </defs>
+
+  <g transform="translate(36, 36)">
+    
+    <path d="M 0 44 L 0 16 C 0 7.16 7.16 0 16 0 L 44 0" fill="none" stroke="url(#snapDark)" stroke-width="14" stroke-linecap="round" />
+    
+    <path d="M 120 76 L 120 104 C 120 112.84 112.84 120 104 120 L 76 120" fill="none" stroke="url(#snapDark)" stroke-width="14" stroke-linecap="round" />
+    
+    <rect x="28" y="28" width="64" height="64" rx="16" fill="url(#snapYellow)" />
+    
+    <path d="M 66 46 L 54 62 L 62 62 L 54 78 L 66 62 L 58 62 Z" fill="#FFFFFF" />
+  </g>
+</svg>

@@ -1,296 +1,65 @@
-/* =========================
-   RESET & BASE
-========================= */
-* {
-  box-sizing: border-box;
+@import "tailwindcss";
+
+/* 1. BASE THEME OVERRIDES & NATIVE ANIMATIONS */
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --color-brand-blue: #2563eb;
+
+  /* Tell Tailwind to generate "animate-blob" and "animate-fade-in-up" classes */
+  --animate-blob: blob 7s infinite;
+  --animate-fade-in-up: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
-body {
-  margin: 0;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f9fafb;
-  color: #111;
-  overflow-x: hidden;
+/* 2. GLOBAL RESETS */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-slate-50);
+    color: var(--color-slate-900);
+    overflow-x: hidden;
+  }
+
+  /* Resetting buttons without stripping Tailwind colors */
+  button {
+    appearance: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    min-height: 44px;
+    transition: all 0.2s ease;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-/* =========================
-   BUTTON RESET (GLOBAL)
-========================= */
-button {
-  appearance: none;
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-  min-height: 44px;
-}
+/* 3. CUSTOM UTILITY CLASSES */
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
 
-button:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 2px;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* =========================
-   LAYOUT
-========================= */
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.container {
-  flex: 1;
-  max-width: 1100px;
-  margin: auto;
-  padding: 24px 20px;
-  width: 100%;
-}
-
-/* =========================
-   NAVBAR & MOBILE NAV
-========================= */
-.navbar {
-  width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-}
-
-.nav-inner {
-  max-width: 1100px;
-  margin: auto;
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.brand {
-  font-size: 22px;
-  font-weight: 700;
-  color: #111;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 18px;
-}
-
-.nav-links a {
-  font-size: 14px;
-  color: #444;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.nav-links a:hover {
-  color: #000;
-}
-
-.desktop-only { display: flex; }
-.mobile-only { display: none; }
-
-.menu-btn { font-size: 22px; color: #111; }
-
-.menu-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.05);
-  z-index: 9;
-}
-
-.mobile-menu {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px 20px;
-  border-top: 1px solid #eee;
-  background: #fff;
-}
-
-.mobile-menu a {
-  font-size: 15px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-}
-
-/* =========================
-   HERO SECTION (HOME PAGE)
-========================= */
-.home-page .hero {
-  text-align: center;
-  margin-bottom: 40px;
-  padding: 40px 0;
-}
-
-.home-page .hero-title {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.home-page .hero-subtitle {
-  font-size: 15px;
-  color: #555;
-  max-width: 620px;
-  margin: 0 auto 20px;
-  line-height: 1.6;
-}
-
-.home-page .hero-actions {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.home-page .hero-primary-btn {
-  background: #111;
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.home-page .hero-secondary-btn {
-  background: #fff;
-  color: #111;
-  border: 1px solid #d0d5dd;
-  padding: 12px 24px;
-  border-radius: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.home-page .hero-trust {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  font-size: 13px;
-  color: #555;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-
-/* =========================
-   TOOL UI & CONTENT BLOCKS
-========================= */
-.tool-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-  margin-bottom: 40px;
-}
-
-.tool-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.tool-subtitle {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.about-intro {
-  background: #ffffff;
-  border: 1px solid #eee;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 40px;
-  font-size: 14px;
-  line-height: 1.7;
-  color: #444;
-}
-
-.about-intro h2 { font-size: 18px; margin-bottom: 10px; }
-.about-intro p { margin-bottom: 12px; }
-
-/* =========================
-   ADSENSE PLACEHOLDERS
-========================= */
-.ad-slot {
-  width: 100%;
-  min-height: 90px;
-  border: 1px dashed #e5e7eb;
-  background: #fafafa;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.ad-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #9ca3af;
-  font-weight: 700;
-}
-
-.ad-top { min-height: 90px; }
-.ad-inline { min-height: 120px; }
-
-/* =========================
-   SEO CONTENT & FOOTER
-========================= */
-.seo-section {
-  margin-top: 40px;
-  font-size: 14px;
-  line-height: 1.7;
-  color: #444;
-}
-
-.seo-section h2 { font-size: 18px; margin-bottom: 8px; }
-.seo-section h3 { font-size: 16px; margin-top: 18px; margin-bottom: 6px; }
-
-.footer {
-  text-align: center;
-  font-size: 13px;
-  color: #666;
-  padding: 24px 0;
-  border-top: 1px solid #eee;
-  margin-top: auto;
-}
-
-/* =========================
-   RESPONSIVE DESIGN
-========================= */
-@media (max-width: 900px) {
-  .desktop-only { display: none; }
-  .mobile-only { display: block; }
-}
-
-@media (max-width: 600px) {
-  .home-page .hero-title { font-size: 24px; }
-  .home-page .hero-actions { flex-direction: column; }
-  .home-page .hero-primary-btn, 
-  .home-page .hero-secondary-btn { width: 100%; text-align: center; }
-  
-  .tool-card { padding: 16px; }
-  .tool-title { font-size: 18px; }
-  .ad-slot { min-height: 80px; }
-}
-
-@media (max-width: 420px) {
-  .container { padding: 16px 14px; }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
 }

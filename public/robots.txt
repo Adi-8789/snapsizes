@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
+Disallow: /404
 
+# Specialized Bots (Ensures AdSense and Google can see everything)
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Sitemaps
 Sitemap: https://snapsizes.vercel.app/sitemap.xml
