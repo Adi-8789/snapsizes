@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/favicon.ico",
-      "destination": "/favicon.ico"
+      "source": "/(ads.txt|sitemap.xml|robots.txt|manifest.json|favicon.ico)",
+      "destination": "/$1"
     },
     {
       "source": "/(.*)",
