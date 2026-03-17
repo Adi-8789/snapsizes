@@ -3,20 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <meta name="theme-color" content="#F59E0B" />
     <link rel="manifest" href="/manifest.json" />
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2861741501067651" crossorigin="anonymous"></script>
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2861741501067651"
+      crossorigin="anonymous"
+    ></script>
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
       // Replace G-XXXXXXXXXX with your actual Measurement ID
-      gtag('config', 'G-HSHVL7TBBP');
+      gtag("config", "G-HSHVL7TBBP");
     </script>
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -29,7 +38,10 @@
       name="description"
       content="A privacy-first suite of free online tools. Resize images, compress photos, convert to PDF, and format text locally in your browser. No uploads required."
     />
-    <meta name="keywords" content="image resizer, bulk photo resizer, image compressor, jpg to pdf, case converter, privacy first tools, client side processing" />
+    <meta
+      name="keywords"
+      content="image resizer, bulk photo resizer, image compressor, jpg to pdf, case converter, privacy first tools, client side processing"
+    />
     <meta name="author" content="SnapSizes" />
 
     <link rel="canonical" href="https://snapsizes.vercel.app" />
@@ -43,16 +55,51 @@
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://snapsizes.vercel.app" />
-    <meta property="og:title" content="SnapSizes – Free Online Image & Text Tools" />
-    <meta property="og:description" content="Resize, compress, and convert images and text instantly. Fast, private, and free client-side processing." />
-    <meta property="og:image" content="https://snapsizes.vercel.app/og-image.png" />
+    <meta
+      property="og:title"
+      content="SnapSizes – Free Online Image & Text Tools"
+    />
+    <meta
+      property="og:description"
+      content="Resize, compress, and convert images and text instantly. Fast, private, and free client-side processing."
+    />
+    <meta
+      property="og:image"
+      content="https://snapsizes.vercel.app/og-image.png"
+    />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://snapsizes.vercel.app" />
-    <meta name="twitter:title" content="SnapSizes – Free Online Image & Text Tools" />
-    <meta name="twitter:description" content="Resize, compress, and convert images and text instantly. Fast, private, and free client-side processing." />
-    <meta name="twitter:image" content="https://snapsizes.vercel.app/og-image.png" />
+    <meta
+      name="twitter:title"
+      content="SnapSizes – Free Online Image & Text Tools"
+    />
+    <meta
+      name="twitter:description"
+      content="Resize, compress, and convert images and text instantly. Fast, private, and free client-side processing."
+    />
+    <meta
+      name="twitter:image"
+      content="https://snapsizes.vercel.app/og-image.png"
+    />
   </head>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js").then(
+          function (registration) {
+            console.log(
+              "Monetag SW registered with scope: ",
+              registration.scope,
+            );
+          },
+          function (err) {
+            console.log("Monetag SW registration failed: ", err);
+          },
+        );
+      });
+    }
+  </script>
 
   <body>
     <div id="root"></div>

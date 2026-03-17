@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/(ads.txt|sitemap.xml|robots.txt|manifest.json|favicon.ico)",
+      "source": "/(ads.txt|sitemap.xml|robots.txt|sw.js)",
       "destination": "/$1"
     },
     {
