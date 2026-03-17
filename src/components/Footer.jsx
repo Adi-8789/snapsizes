@@ -16,7 +16,8 @@ export default function Footer() {
               to="/"
               className="inline-block text-3xl font-extrabold text-white tracking-tight mb-4 hover:opacity-90 transition-opacity"
             >
-              Snap<span className="text-blue-500">Sizes</span>
+              {/* 🎨 UI UPDATE: Logo text to Amber */}
+              Snap<span className="text-amber-500">Sizes</span>
             </Link>
             <p className="text-sm leading-relaxed text-slate-400 max-w-sm mb-6">
               Fast, secure, and privacy-focused image tools. All processing
@@ -29,8 +30,9 @@ export default function Footer() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-emerald-400 shadow-sm">
                 <Shield size={14} className="text-emerald-500" /> 100% Secure
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-blue-400 shadow-sm">
-                <Zap size={14} className="text-blue-500" /> Client-Side
+              {/* 🎨 UI UPDATE: Client-Side badge to Amber */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-amber-400 shadow-sm">
+                <Zap size={14} className="text-amber-500" /> Client-Side
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-rose-400 shadow-sm">
                 <Heart size={14} className="text-rose-500" /> Free Forever
@@ -47,7 +49,8 @@ export default function Footer() {
               <li>
                 <Link
                   to="/social-media-imagetool"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                 
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Social Image Resizer
                 </Link>
@@ -55,7 +58,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/bulk-photo-resizer"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Bulk Photo Resizer
                 </Link>
@@ -63,7 +66,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/image-compressor-tool"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Image Compressor
                 </Link>
@@ -71,7 +74,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/image-to-pdf-tool"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Image to PDF Converter
                 </Link>
@@ -79,7 +82,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/youtube-thumbnail-downloader"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all font-medium text-slate-300"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all font-medium text-slate-300"
                 >
                   YT Thumbnail Downloader
                 </Link>
@@ -95,7 +98,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Company Links (SEO UPDATED) */}
+          {/* Company Links */}
           <div>
             <h4 className="text-white font-bold tracking-wide text-sm uppercase mb-5">
               Company
@@ -104,10 +107,11 @@ export default function Footer() {
               <li>
                 <Link
                   to="/about"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   About Us{" "}
-                  <span className="text-[10px] bg-amber-500/20 text-blue-400 px-1.5 py-0.5 rounded ml-1 font-black">
+                  {/* 🎨 UI UPDATE: Tag to Amber */}
+                  <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded ml-1 font-black">
                     Comparison
                   </span>
                 </Link>
@@ -115,7 +119,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/contact"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Contact Support
                 </Link>
@@ -140,7 +144,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/privacy-policy"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Privacy Policy
                 </Link>
@@ -148,7 +152,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/terms"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Terms of Service
                 </Link>
@@ -156,7 +160,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/cookie-policy"
-                  className="text-sm hover:text-blue-400 hover:translate-x-1 inline-block transition-all"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Cookie Policy
                 </Link>
