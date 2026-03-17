@@ -1,84 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  {/* High Priority - The Hub */}
   <url>
     <loc>https://snapsizes.vercel.app/</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
-  {/* Priority Tools - Set to Daily to force recrawls */}
   <url>
     <loc>https://snapsizes.vercel.app/bulk-photo-resizer</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://snapsizes.vercel.app/image-compressor-tool</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://snapsizes.vercel.app/youtube-thumbnail-downloader</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  {/* Secondary Tools */}
   <url>
     <loc>https://snapsizes.vercel.app/social-media-imagetool</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://snapsizes.vercel.app/image-to-pdf-tool</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://snapsizes.vercel.app/case-converter</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  {/* Authority Content - High Priority for Trust (E-E-A-T) */}
-  <url>
-    <loc>https://snapsizes.vercel.app/about</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  {/* Utility Pages */}
+  <url>
+    <loc>https://snapsizes.vercel.app/case-converter</loc>
+    <lastmod>2026-03-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://snapsizes.vercel.app/about</loc>
+    <lastmod>2026-03-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <url>
     <loc>https://snapsizes.vercel.app/contact</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://snapsizes.vercel.app/donate</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
-  {/* Legal Pages - Required for AdSense but low crawl priority */}
   <url>
     <loc>https://snapsizes.vercel.app/privacy-policy</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://snapsizes.vercel.app/terms</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
 
   <url>
     <loc>https://snapsizes.vercel.app/cookie-policy</loc>
+    <lastmod>2026-03-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
