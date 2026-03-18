@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Type, Copy, Trash2, Check, Download, Eraser, Moon, Sun, Settings2 } from 'lucide-react';
 import SeoHead from '../components/SeoHead';
 
+// 🟢 JSON-LD Schema for SEO (Untouched)
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -16,6 +17,42 @@ const structuredData = {
   },
   "featureList": ["Uppercase & Lowercase conversion", "Title Case & Sentence Case generation", "Live Word & Character Counting", "One-click Copy to Clipboard", "Dark Mode"]
 };
+
+// 🟢 NEW: Define the custom FAQs to pass to SeoHead
+const caseConverterFaqs = [
+  {
+    "@type": "Question",
+    "name": "What is Sentence case?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Sentence case capitalizes only the very first letter of a sentence and leaves the rest in lowercase, exactly like a standard book or article. It is perfect for converting chunks of ALL CAPS text back into readable paragraphs."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "When should I use Title Case?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Title Case capitalizes the first letter of every single word. It is the industry standard for formatting blog post titles, YouTube video names, book covers, and academic headers."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Is my text data stored on your servers?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. SnapSizes is a privacy-first platform. The Case Converter runs entirely within your browser using client-side JavaScript. Your text is never uploaded to the internet. The 'Auto-Save' feature temporarily stores your draft in your browser's local cache so you don't lose work if you refresh the page."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Does the word counter include spaces?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Our word counter strictly counts words separated by spaces, while the character counter provides a total count including spaces, punctuation, and line breaks."
+    }
+  }
+];
 
 const CaseConverterTool = () => {
   // --- SaaS Grade State Management ---
@@ -82,10 +119,13 @@ const CaseConverterTool = () => {
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 pb-32 lg:pb-0 ${theme.bg} ${theme.textMain} overflow-x-hidden relative`}>
+      
+      {/* 🟢 NEW: customFaqs prop added here */}
       <SeoHead
         title="Case Converter & Word Counter - App Grade Tool | SnapSizes"
         description="Free online case converter with dark mode and auto-save. Convert text to uppercase, lowercase, or title case instantly without losing your work."
         canonical="https://snapsizes.vercel.app/case-converter"
+        customFaqs={caseConverterFaqs}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
@@ -245,7 +285,9 @@ const CaseConverterTool = () => {
 
           <div className={`border-t ${theme.cardBorder} pt-12`}>
             <h2 className={`text-2xl lg:text-3xl font-extrabold mb-8 tracking-tight text-center ${theme.textMain}`}>Understanding Text Cases & Features</h2>
-            <div className="space-y-4 lg:space-y-6" itemScope itemType="https://schema.org/FAQPage">
+            
+            {/* 🟢 NEW: Cleaned HTML. Removed all itemScope and itemType tags that were causing duplicates */}
+            <div className="space-y-4 lg:space-y-6">
               {[
                 { 
                   q: "What is Sentence case?", 
@@ -264,10 +306,10 @@ const CaseConverterTool = () => {
                   a: "Our word counter strictly counts words separated by spaces, while the character counter provides a total count including spaces, punctuation, and line breaks." 
                 }
               ].map((faq, i) => (
-                <div key={i} className={`p-6 lg:p-8 rounded-2xl lg:rounded-3xl border ${theme.cardBorder} ${theme.inputBg} transition-colors`} itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-                  <h3 className={`text-lg lg:text-xl font-bold mb-2 ${theme.textMain}`} itemProp="name">{faq.q}</h3>
-                  <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                     <p className={`leading-relaxed text-sm ${theme.textMuted}`} itemProp="text">{faq.a}</p>
+                <div key={i} className={`p-6 lg:p-8 rounded-2xl lg:rounded-3xl border ${theme.cardBorder} ${theme.inputBg} transition-colors`}>
+                  <h3 className={`text-lg lg:text-xl font-bold mb-2 ${theme.textMain}`}>{faq.q}</h3>
+                  <div>
+                     <p className={`leading-relaxed text-sm ${theme.textMuted}`}>{faq.a}</p>
                   </div>
                 </div>
               ))}
