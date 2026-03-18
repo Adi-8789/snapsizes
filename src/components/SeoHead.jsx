@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function SeoHead({ title, description, canonical }) {
+export default function SeoHead({ title, description, canonical, customFaqs }) {
   const siteName = "SnapSizes";
   const fullTitle = title ? `${title} | ${siteName}` : "SnapSizes – Free Privacy-First Image Tools";
 
@@ -12,14 +12,12 @@ export default function SeoHead({ title, description, canonical }) {
 
     const metaData = [
       { name: "description", content: description },
-      // Open Graph / Facebook
       { property: "og:type", content: "website" },
       { property: "og:title", content: fullTitle },
       { property: "og:description", content: description },
       { property: "og:url", content: canonical || window.location.href },
       { property: "og:site_name", content: siteName },
       { property: "og:image", content: "https://snapsizes.vercel.app/og-image.png" },
-      // Twitter
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: fullTitle },
       { name: "twitter:description", content: description },
@@ -45,7 +43,6 @@ export default function SeoHead({ title, description, canonical }) {
       appliedMetas.push({ element, prevContent });
     });
 
-    // Canonical Link
     let link = document.querySelector("link[rel='canonical']");
     const prevHref = link ? link.href : null;
     if (canonical) {
@@ -69,6 +66,29 @@ export default function SeoHead({ title, description, canonical }) {
       document.head.appendChild(script);
     }
 
+    // Default FAQs that appear on every page
+    const defaultFaqs = [
+      {
+        "@type": "Question",
+        "name": "Is SnapSizes really free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, SnapSizes is a 100% free web-based utility for creators."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are my images uploaded to a server?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. All image processing happens client-side in your browser. Your data stays on your device."
+        }
+      }
+    ];
+
+    // Combine default FAQs with any custom ones passed from the specific tool page
+    const allFaqs = customFaqs ? [...defaultFaqs, ...customFaqs] : defaultFaqs;
+
     const schema = {
       "@context": "https://schema.org",
       "@graph": [
@@ -84,24 +104,7 @@ export default function SeoHead({ title, description, canonical }) {
         },
         {
           "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Is SnapSizes really free?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes, SnapSizes is a 100% free web-based utility for creators."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Are my images uploaded to a server?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "No. All image processing happens client-side in your browser. Your data stays on your device."
-              }
-            }
-          ]
+          "mainEntity": allFaqs // This ensures only ONE FAQPage object exists!
         }
       ]
     };
@@ -109,7 +112,6 @@ export default function SeoHead({ title, description, canonical }) {
     script.textContent = JSON.stringify(schema);
 
     return () => {
-      // Restore previous values to prevent meta bleeding between pages
       appliedMetas.forEach(({ element, prevContent }) => {
         if (prevContent) element.content = prevContent;
         else element.remove();
@@ -117,7 +119,7 @@ export default function SeoHead({ title, description, canonical }) {
       if (link && !prevHref) link.remove();
       else if (link) link.href = prevHref;
     };
-  }, [fullTitle, description, canonical]);
+  }, [fullTitle, description, canonical, customFaqs]);
 
   return null;
 }

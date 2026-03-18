@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Download, Copy, Eye, AlertCircle, Loader2, Check, Sparkles, Link as LinkIcon, ImagePlus, DownloadCloud } from 'lucide-react';
 import SeoHead from '../components/SeoHead';
 
-// 🟢 JSON-LD Schema for SEO (Untouched)
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -31,8 +30,43 @@ const structuredData = {
   ]
 };
 
+// 🟢 NEW: Define the custom FAQs for this specific tool to pass to SeoHead
+const youtubeFaqs = [
+  {
+    "@type": "Question",
+    "name": "How to download YouTube thumbnails?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Simply copy the link of any YouTube video or YouTube Short, paste it into our search box above, and click 'Get Thumbnails'. The tool will instantly query YouTube's servers and provide you with secure download links for every available image resolution."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Is downloading YouTube thumbnails free?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes! The SnapSizes YouTube thumbnail downloader tool is 100% free to use. There are no paywalls, it requires no account registration, and it allows for unlimited, instant image downloads directly to your device."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "What resolution thumbnails are available?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Depending on the quality of the original video upload, you can extract thumbnails in Max Resolution (1080p HD or 4K), High Quality (720p), Medium Quality (360p), and Standard Quality. If an older video doesn't have an HD cover, our system automatically provides the next best High Quality fallback."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Does this tool work on mobile devices?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Absolutely. Our downloader is fully optimized for iOS and Android devices. You can easily copy a video link from the YouTube app, paste it into your mobile browser here, and save the image directly to your phone's camera roll."
+    }
+  }
+];
+
 const YoutubeThumbnailDownloader = () => {
-  // 🔒 LOGIC LOCKED: State and logic are 100% untouched
   const [url, setUrl] = useState('');
   const [videoId, setVideoId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -101,31 +135,30 @@ const YoutubeThumbnailDownloader = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden relative">
       
+      {/* 🟢 NEW: Pass customFaqs to SeoHead */}
       <SeoHead
         title="YouTube Thumbnail Downloader (HD) – Download Free | SnapSizes"
         description="Free YouTube Thumbnail Downloader. Download thumbnails from any YouTube video in HD, High, Medium, and Standard quality instantly."
         canonical="https://snapsizes.vercel.app/youtube-thumbnail-downloader"
+        customFaqs={youtubeFaqs}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       
-      {/* 🎨 UI UPDATE: Background blobs updated to Amber/Orange/Yellow */}
+      {/* UI Elements stay exactly the same */}
       <div className="absolute top-0 left-0 w-full h-150 overflow-hidden z-0 pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-125 h-125 rounded-full bg-amber-400/20 mix-blend-multiply filter blur-[80px] animate-blob"></div>
         <div className="absolute top-[10%] -right-[10%] w-100 h-100 rounded-full bg-orange-400/20 mix-blend-multiply filter blur-[80px] animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-[10%] left-[20%] w-150 h-150 rounded-full bg-yellow-300/20 mix-blend-multiply filter blur-[80px] animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* --- HERO SECTION --- */}
       <header className="relative z-10 pt-24 pb-16 px-4 text-center animate-fade-in-up">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-amber-100 shadow-sm text-amber-600 text-sm font-bold tracking-wide mb-6 backdrop-blur-md">
-            {/* 🎨 UI UPDATE: Sparkle icon updated to amber */}
             <Sparkles className="w-4 h-4 text-amber-500" />
             100% Free & Instant
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight text-slate-900">
             YouTube Thumbnail <br className="hidden md:block" />
-            {/* 🎨 UI UPDATE: Text gradient updated to Amber/Orange */}
             <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-500 to-orange-600">
               Downloader
             </span>
@@ -136,7 +169,6 @@ const YoutubeThumbnailDownloader = () => {
         </div>
       </header>
 
-      {/* --- FLOATING INPUT TOOL --- */}
       <main className="relative z-20">
         <section className="max-w-4xl mx-auto px-4 -mt-4">
           <div className="bg-white/80 backdrop-blur-xl p-3 md:p-4 rounded-4xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white flex flex-col md:flex-row gap-3 transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
@@ -151,7 +183,6 @@ const YoutubeThumbnailDownloader = () => {
             <button
               onClick={handleGetThumbnails}
               disabled={loading}
-            
               className="bg-linear-to-r! from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white! px-10 py-4 rounded-full font-bold text-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center min-w-50"
             >
               {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Get Thumbnails'}
@@ -166,12 +197,9 @@ const YoutubeThumbnailDownloader = () => {
           )}
         </section>
 
-        {/* --- EMPTY STATE / HOW IT WORKS --- */}
         {!videoId && !loading && !error && (
           <section className="max-w-5xl mx-auto px-4 py-16 animate-fade-in-up">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              
-              {/* 🎨 UI UPDATE: Kept Amber */}
               <div className="bg-white/60 backdrop-blur-md p-8 rounded-4xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all text-center group">
                 <div className="w-16 h-16 mx-auto bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
                   <LinkIcon className="w-8 h-8" />
@@ -180,7 +208,6 @@ const YoutubeThumbnailDownloader = () => {
                 <p className="text-slate-600 leading-relaxed text-sm">Find the YouTube video and copy its URL from your browser address bar or share button.</p>
               </div>
 
-              {/* 🎨 UI UPDATE: Indigo to Orange */}
               <div className="bg-white/60 backdrop-blur-md p-8 rounded-4xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all text-center group">
                 <div className="w-16 h-16 mx-auto bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
                   <ImagePlus className="w-8 h-8" />
@@ -189,7 +216,6 @@ const YoutubeThumbnailDownloader = () => {
                 <p className="text-slate-600 leading-relaxed text-sm">Paste the link into the search box above and click the button to instantly extract the images.</p>
               </div>
 
-              {/* 🎨 UI UPDATE: Purple to Yellow */}
               <div className="bg-white/60 backdrop-blur-md p-8 rounded-4xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all text-center group">
                 <div className="w-16 h-16 mx-auto bg-yellow-50 text-yellow-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-yellow-500 group-hover:text-white transition-all duration-300">
                   <DownloadCloud className="w-8 h-8" />
@@ -201,7 +227,6 @@ const YoutubeThumbnailDownloader = () => {
           </section>
         )}
 
-        {/* --- RESULTS SECTION --- */}
         {loading && (
           <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 gap-8">
             {[1, 2, 3, 4].map((i) => (
@@ -258,7 +283,6 @@ const YoutubeThumbnailDownloader = () => {
           </section>
         )}
 
-        {/* --- PROMO BANNER --- */}
         <section className="max-w-5xl mx-auto px-4 py-8 relative z-10">
           <div className="bg-linear-to-br from-slate-900 to-slate-800 rounded-[2.5rem] p-10 md:p-14 text-center shadow-2xl relative overflow-hidden">
             <div className="absolute -top-24 -right-24 w-64 h-64 border-30 border-white/5 rounded-full pointer-events-none"></div>
@@ -277,7 +301,6 @@ const YoutubeThumbnailDownloader = () => {
 
       </main>
 
-      {/* 🚀 SEO UPGRADE: Thick Content for AdSense Approval */}
       <article className="bg-white border-t border-slate-200 mt-12 relative z-10">
         <div className="max-w-4xl mx-auto px-4 py-20">
           <div className="prose md:prose-lg text-slate-600 max-w-none mb-16">
@@ -302,8 +325,9 @@ const YoutubeThumbnailDownloader = () => {
 
           <div className="border-t border-slate-100 pt-16">
             <h2 className="text-3xl font-extrabold text-slate-900 mb-10 tracking-tight text-center">Frequently Asked Questions</h2>
-            {/* 🟢 Proper Schema.org formatting added here for Rich Snippets */}
-            <div className="space-y-6" itemScope itemType="https://schema.org/FAQPage">
+            
+            {/* 🟢 NEW: Cleaned HTML. Removed all itemScope and itemType tags that were causing duplicates */}
+            <div className="space-y-6">
               {[
                 { 
                   q: "How to download YouTube thumbnails?", 
@@ -322,10 +346,10 @@ const YoutubeThumbnailDownloader = () => {
                   a: "Absolutely. Our downloader is fully optimized for iOS and Android devices. You can easily copy a video link from the YouTube app, paste it into your mobile browser here, and save the image directly to your phone's camera roll." 
                 }
               ].map((faq, i) => (
-                <div key={i} className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:border-amber-100 transition-colors" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-                  <h3 className="text-xl font-bold text-slate-900 mb-3" itemProp="name">{faq.q}</h3>
-                  <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                    <p className="text-slate-600 leading-relaxed text-sm" itemProp="text">{faq.a}</p>
+                <div key={i} className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:border-amber-100 transition-colors">
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{faq.q}</h3>
+                  <div>
+                    <p className="text-slate-600 leading-relaxed text-sm">{faq.a}</p>
                   </div>
                 </div>
               ))}
@@ -334,7 +358,6 @@ const YoutubeThumbnailDownloader = () => {
         </div>
       </article>
 
-      {/* Legal Disclaimer Footer */}
       <footer className="bg-slate-900 text-slate-400 py-8 text-center px-4 relative z-10 border-t border-slate-800">
         <p className="text-sm max-w-3xl mx-auto leading-relaxed">
           <strong className="text-slate-300">Disclaimer:</strong> Thumbnails belong to their respective YouTube creators. This tool simply previews and extracts publicly available thumbnails via official endpoints. We do not host these images. Please ensure you have the right to use any downloaded images.
