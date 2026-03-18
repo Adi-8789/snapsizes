@@ -8,7 +8,8 @@ const TOOLS = [
   { name: "Image Compressor", path: "/image-compressor-tool" },
   { name: "PDF Converter", path: "/image-to-pdf-tool" },
   { name: "YT Thumbnail Downloader", path: "/youtube-thumbnail-downloader" },
-  { name: "Case Converter", path: "/case-converter" }, // 🟢 NEW TOOL ADDED HERE
+  { name: "Case Converter", path: "/case-converter" }, 
+  { name: "Merge PDF", path: "/merge-pdf" },
 ];
 
 export default function Navbar() {

@@ -36,6 +36,34 @@ const structuredData = {
   "featureList": ["Drag and Drop Reordering", "Client-Side Processing", "Custom Page Sizes & Margins"]
 };
 
+// 🟢 NEW: Schema.org formatted FAQs to pass to SeoHead
+const imageToPdfFaqs = [
+  {
+    "@type": "Question",
+    "name": "Is this tool completely free to use?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes, the SnapSizes PDF converter is 100% free. There are no daily limits, paywalls, or hidden watermarks added to your generated files."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Does SnapSizes store my photos on a server?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. We operate with a strict privacy-first policy. Your images are processed inside your own browser's memory and are wiped entirely as soon as you close or refresh the tab."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Can I convert PNG and WebP files to PDF?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Absolutely. Our tool supports all major web image formats including standard JPG/JPEG, transparent PNGs, and modern WebP files."
+    }
+  }
+];
+
 // 🟢 Premium Sortable Card (Tailwind Styled)
 const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
   const {
@@ -57,7 +85,6 @@ const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
 
   return (
     <div ref={setNodeRef} style={style} className="group relative bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col">
-      {/* Image Preview Area */}
       <div className="aspect-[1/1.4] bg-slate-50 relative flex items-center justify-center p-3 overflow-hidden">
         <img
           src={img.url}
@@ -65,13 +92,9 @@ const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
           className="max-w-full max-h-full object-contain shadow-sm border border-slate-200 bg-white"
           style={{ transform: `rotate(${img.rotation}deg)`, transition: 'transform 0.3s ease' }}
         />
-
-        {/* Floating Page Badge */}
         <div className="absolute top-2 left-2 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
           {index + 1}
         </div>
-
-        {/* Floating Delete Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -84,8 +107,6 @@ const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
           <X size={14} />
         </button>
       </div>
-
-      {/* Slim Footer for Actions */}
       <div className="p-2 border-t border-slate-100 flex items-center justify-between bg-white">
         <button 
           onClick={() => onRotate(id)} 
@@ -95,7 +116,6 @@ const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
         >
           <RotateCw size={14} />
         </button>
-
         <div 
           className="p-1.5 text-slate-300 hover:text-slate-600 cursor-grab active:cursor-grabbing transition-colors" 
           {...attributes} 
@@ -109,7 +129,7 @@ const SortableImageCard = ({ id, img, index, onRemove, onRotate }) => {
   );
 };
 
-// 🟢 Extracted SettingsPanel for DRY code and Compact UI
+// 🟢 Extracted SettingsPanel
 const SettingsPanel = ({ settings, setSettings, handleExport, isGenerating, progress, hasImages }) => (
   <div className="space-y-6 text-left pb-24 lg:pb-0">
     <div>
@@ -267,14 +287,16 @@ export default function ImageToPdf() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900" ref={toolAreaRef}>
+      
+      {/* 🟢 NEW: Pass customFaqs to SeoHead */}
       <SeoHead
         title="JPG to PDF Converter - Convert Images to PDF Free | SnapSizes"
         description="Convert JPG, PNG, and WebP images to a single PDF document securely in your browser."
         canonical="https://snapsizes.vercel.app/image-to-pdf-tool"
+        customFaqs={imageToPdfFaqs}
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      {/* --- CONDENSED HERO SECTION --- */}
       <header className="bg-slate-900 pt-10 pb-16 px-4 text-center text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-amber-500 rounded-full blur-[140px]"></div>
@@ -290,15 +312,11 @@ export default function ImageToPdf() {
         </div>
       </header>
 
-      {/* --- COMPACT WORKSPACE --- */}
       <main className="max-w-325 mx-auto px-4 lg:px-8 -mt-8 mb-16 relative z-20 flex flex-col lg:flex-row gap-6 items-start">
-        
-        {/* Compact Sidebar */}
         <aside className="hidden lg:block bg-white rounded-4xl shadow-sm border border-slate-200 p-6 w-[320px] shrink-0 sticky top-24">
           <SettingsPanel {...sharedProps} />
         </aside>
 
-        {/* Gallery/Canvas Area */}
         <section className="flex-1 w-full bg-white rounded-4xl border border-slate-200 shadow-sm min-h-100 flex flex-col p-6 lg:p-8 overflow-hidden">
           {!hasImages ? (
             <div
@@ -364,7 +382,6 @@ export default function ImageToPdf() {
         </section>
       </main>
 
-      {/* --- SEO ARTICLE (AdSense Optimized "Thick Content") --- */}
       <article className="bg-white border-t border-slate-200 mt-12 relative z-10">
         <div className="max-w-4xl mx-auto px-4 py-20">
           <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed">
@@ -375,7 +392,6 @@ export default function ImageToPdf() {
               <strong>SnapSizes</strong> provides a fast, free, and secure way to convert your JPG, PNG, and WebP images into a professional PDF document directly in your browser.
             </p>
 
-            {/* Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8 not-prose">
               {[
                 { icon: <Shield className="text-emerald-500" size={24} />, h: "100% Private", p: "We use Client-Side Processing. Your personal photos are never uploaded to our servers." },
@@ -391,8 +407,12 @@ export default function ImageToPdf() {
             </div>
 
             <div className="bg-amber-50 border-l-4 border-blue-600 p-6 rounded-2xl my-10 text-slate-800 not-prose">
-              <p className="font-medium m-0 text-sm">
+              <p className="font-medium m-0 text-sm mb-3">
                   <strong>💡 Complete Your Workflow:</strong> Are your source images too large? Before converting to PDF, you can reduce their file size with our <a href="/image-compressor-tool" className="text-amber-600 underline font-bold hover:text-blue-800">Image Compressor</a> or change their dimensions using the <a href="/bulk-photo-resizer" className="text-amber-600 underline font-bold hover:text-blue-800">Bulk Photo Resizer</a>.
+              </p>
+              {/* 🟢 NEW: Cross-promotion link inserted here */}
+              <p className="font-medium m-0 text-sm">
+                  <strong>🔗 Next Step:</strong> Have multiple PDF documents you need to combine? Use our brand new secure <a href="/merge-pdf" className="text-amber-600 underline font-bold hover:text-blue-800">Merge PDF Tool</a> to combine them instantly.
               </p>
             </div>
 
@@ -433,7 +453,6 @@ export default function ImageToPdf() {
         </div>
       </article>
 
-      {/* --- MOBILE FLOATING BAR --- */}
       {hasImages && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-80 flex items-center gap-3 lg:hidden px-4 w-full max-w-90">
           <button
@@ -466,7 +485,6 @@ export default function ImageToPdf() {
         </div>
       )}
 
-      {/* --- MOBILE SETTINGS DRAWER (Forced Sharp) --- */}
       <aside
         className={`
           fixed inset-x-0 bottom-0 z-100 lg:hidden
@@ -489,7 +507,6 @@ export default function ImageToPdf() {
         <SettingsPanel {...sharedProps} />
       </aside>
 
-      {/* --- DRAWER BACKDROP --- */}
       {isDrawerOpen && (
         <div
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-90 lg:hidden animate-fade-in"

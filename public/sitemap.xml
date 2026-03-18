@@ -51,6 +51,13 @@
   </url>
 
   <url>
+    <loc>https://snapsizes.vercel.app/merge-pdf</loc>
+    <lastmod>2026-03-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://snapsizes.vercel.app/about</loc>
     <lastmod>2026-03-17</lastmod>
     <changefreq>weekly</changefreq>

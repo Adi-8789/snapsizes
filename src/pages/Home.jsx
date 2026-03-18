@@ -3,48 +3,43 @@ import { Link } from "react-router-dom";
 import { 
   Crop, Layers, Minimize2, FileText, Youtube, 
   ShieldCheck, Zap, Lock, ArrowRight, Sparkles, Globe, 
-  Type 
+  Type, Combine // 🟢 IMPORTED 'Combine' for the new PDF tool
 } from "lucide-react";
 import SeoHead from "../components/SeoHead";
 
-// 🟢 JSON-LD Schema specifically for the Homepage (Crucial for AdSense/SEO)
+
 const structuredData = {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "name": "SnapSizes",
-      "url": "https://snapsizes.vercel.app/",
-      "description": "A privacy-first suite of free online image and text optimization tools including bulk resizers, compressors, and case converters.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://snapsizes.vercel.app/contact?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Is SnapSizes really free?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. SnapSizes is a completely free online utility. There are no premium subscriptions, no account registrations required, and no hidden watermarks applied to your exported images."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Are my images and text stored on your servers?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. SnapSizes utilizes a secure, client-side processing architecture. Whether you are compressing a PDF or converting text, all computations happen locally in your web browser. We never upload, store, or view your data."
-          }
-        }
-      ]
-    }
-  ]
+  "@type": "WebSite",
+  "name": "SnapSizes",
+  "url": "https://snapsizes.vercel.app/",
+  "description": "A privacy-first suite of free online image and text optimization tools including bulk resizers, compressors, and case converters.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://snapsizes.vercel.app/contact?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
 };
+
+// 🟢 NEW: Specific FAQs for the Homepage to pass to SeoHead
+const homeFaqs = [
+  {
+    "@type": "Question",
+    "name": "How many images can I resize or compress at once?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Our Bulk Photo Resizer allows you to process up to 50 images in a single batch. This limit ensures high performance and prevents your web browser from crashing during heavy computation tasks."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Does SnapSizes work on mobile devices?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Absolutely. The entire SnapSizes platform is fully responsive and designed to work seamlessly on Android, iOS, and all modern desktop browsers."
+    }
+  }
+];
 
 const TOOLS = [
   {
@@ -94,16 +89,28 @@ const TOOLS = [
     path: "/case-converter",
     color: "text-purple-600",
     bg: "bg-purple-50"
+  },
+  
+  {
+    title: "Merge PDF",
+    desc: "Securely combine multiple PDF files into one document instantly. 100% offline processing.",
+    icon: <Combine size={28} />,
+    path: "/merge-pdf",
+    color: "text-blue-600",
+    bg: "bg-blue-50"
   }
 ];
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden">
+      
+      {/* 🟢 Passed customFaqs to SeoHead */}
       <SeoHead
         title="SnapSizes - Free Online Image Tools (Privacy-First)"
         description="Resize, compress, and convert images online for free. SnapSizes is 100% browser-based—no uploads, no signups, and total privacy guaranteed."
         canonical="https://snapsizes.vercel.app/"
+        customFaqs={homeFaqs} 
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
@@ -163,7 +170,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* --- SEO ARTICLE (AdSense Optimized "Thick Content") --- */}
+      {/* --- SEO ARTICLE --- */}
       <article className="bg-white border-t border-slate-200 py-24 relative z-10">
         <div className="max-w-4xl mx-auto px-4">
           <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed">
@@ -200,10 +207,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* --- FAQ SECTION (Crucial for AdSense & Google Rich Snippets) --- */}
+            {/* --- Cleaned FAQ SECTION --- */}
             <div className="mt-20 border-t border-slate-100 pt-16">
               <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight text-center">Frequently Asked Questions</h3>
-              <div className="grid gap-6 not-prose" itemScope itemType="https://schema.org/FAQPage">
+              
+              {/* 🟢 Removed itemScope attributes to prevent Schema duplication */}
+              <div className="grid gap-6 not-prose">
                 {[
                   {
                     q: "Is SnapSizes really free to use?",
@@ -222,10 +231,10 @@ export default function Home() {
                     a: "Absolutely. The entire SnapSizes platform is fully responsive and designed to work seamlessly on Android, iOS, and all modern desktop browsers."
                   }
                 ].map((item, i) => (
-                  <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-                    <h4 className="font-bold text-slate-900 mb-2" itemProp="name">{item.q}</h4>
-                    <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                      <p className="text-sm text-slate-500" itemProp="text">{item.a}</p>
+                  <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 className="font-bold text-slate-900 mb-2">{item.q}</h4>
+                    <div>
+                      <p className="text-sm text-slate-500">{item.a}</p>
                     </div>
                   </div>
                 ))}

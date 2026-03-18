@@ -17,6 +17,7 @@ const SocialMediaImageTool = lazy(() => import("./pages/SocialMediaImageTool"));
 const ImageToPdfTool = lazy(() => import("./pages/ImageToPdfTool"));
 const ImageCompressorTool = lazy(() => import("./pages/ImageCompressorTool"));
 const YoutubeThumbnailDownloader = lazy(() => import("./pages/YoutubeThumbnailDownloader"));
+const PdfMergeTool = lazy(() => import("./pages/PdfMergeTool"));
 
 // 📄 Info Pages
 const About = lazy(() => import("./pages/About"));
@@ -75,7 +76,7 @@ export default function App() {
             <Route path="/image-to-pdf-tool" element={<ImageToPdfTool />} />
             <Route path="/image-compressor-tool" element={<ImageCompressorTool />} />
             <Route path="/youtube-thumbnail-downloader" element={<YoutubeThumbnailDownloader />} />
-
+            <Route path="/merge-pdf" element={<PdfMergeTool />} />
             <Route path="/about" element={<About />} />
             <Route path="/donate" element={<Donate />} />
             <Route path="/contact" element={<Contact />} />

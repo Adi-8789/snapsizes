@@ -16,7 +16,6 @@ export default function Footer() {
               to="/"
               className="inline-block text-3xl font-extrabold text-white tracking-tight mb-4 hover:opacity-90 transition-opacity"
             >
-              {/* 🎨 UI UPDATE: Logo text to Amber */}
               Snap<span className="text-amber-500">Sizes</span>
             </Link>
             <p className="text-sm leading-relaxed text-slate-400 max-w-sm mb-6">
@@ -30,7 +29,6 @@ export default function Footer() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-emerald-400 shadow-sm">
                 <Shield size={14} className="text-emerald-500" /> 100% Secure
               </span>
-              {/* 🎨 UI UPDATE: Client-Side badge to Amber */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-amber-400 shadow-sm">
                 <Zap size={14} className="text-amber-500" /> Client-Side
               </span>
@@ -49,7 +47,6 @@ export default function Footer() {
               <li>
                 <Link
                   to="/social-media-imagetool"
-                 
                   className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   Social Image Resizer
@@ -79,6 +76,15 @@ export default function Footer() {
                   Image to PDF Converter
                 </Link>
               </li>
+              {/* 🟢 NEW TOOL ADDED HERE */}
+              <li>
+                <Link
+                  to="/merge-pdf"
+                  className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
+                >
+                  Merge PDF
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/youtube-thumbnail-downloader"
@@ -90,7 +96,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/case-converter"
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="text-slate-400 hover:text-white hover:translate-x-1 transition-all inline-block text-sm"
                 >
                   Case Converter
                 </Link>
@@ -110,7 +116,6 @@ export default function Footer() {
                   className="text-sm hover:text-amber-400 hover:translate-x-1 inline-block transition-all"
                 >
                   About Us{" "}
-                  {/* 🎨 UI UPDATE: Tag to Amber */}
                   <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded ml-1 font-black">
                     Comparison
                   </span>
