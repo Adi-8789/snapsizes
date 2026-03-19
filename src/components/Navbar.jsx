@@ -10,6 +10,8 @@ const TOOLS = [
   { name: "YT Thumbnail Downloader", path: "/youtube-thumbnail-downloader" },
   { name: "Case Converter", path: "/case-converter" }, 
   { name: "Merge PDF", path: "/merge-pdf" },
+  { name: "Biodata Maker", path: "/biodata-maker" },
+
 ];
 
 export default function Navbar() {

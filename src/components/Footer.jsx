@@ -101,6 +101,14 @@ export default function Footer() {
                   Case Converter
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/biodata-maker"
+                  className="text-slate-400 hover:text-white hover:translate-x-1 transition-all inline-block text-sm"
+                >
+                  Biodata Maker
+                </Link>
+              </li>
             </ul>
           </div>
 

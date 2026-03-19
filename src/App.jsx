@@ -1,6 +1,6 @@
-import React, { Suspense, lazy, useEffect } from "react"; 
-import { Routes, Route, useLocation } from "react-router-dom"; 
-import ReactGA from "react-ga4"; 
+import React, { Suspense, lazy, useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import ReactGA from "react-ga4";
 
 // Layout Components
 import Navbar from "./components/Navbar";
@@ -16,9 +16,11 @@ const BulkPhotoResizer = lazy(() => import("./pages/BulkPhotoResizer"));
 const SocialMediaImageTool = lazy(() => import("./pages/SocialMediaImageTool"));
 const ImageToPdfTool = lazy(() => import("./pages/ImageToPdfTool"));
 const ImageCompressorTool = lazy(() => import("./pages/ImageCompressorTool"));
-const YoutubeThumbnailDownloader = lazy(() => import("./pages/YoutubeThumbnailDownloader"));
+const YoutubeThumbnailDownloader = lazy(
+  () => import("./pages/YoutubeThumbnailDownloader"),
+);
 const PdfMergeTool = lazy(() => import("./pages/PdfMergeTool"));
-
+const BiodataMaker = lazy(() => import("./pages/BiodataMaker"));
 // 📄 Info Pages
 const About = lazy(() => import("./pages/About"));
 const Donate = lazy(() => import("./pages/Donate"));
@@ -37,9 +39,9 @@ export default function App() {
 
   useEffect(() => {
     // 🟢 Send pageview to Google Analytics whenever location changes
-    ReactGA.send({ 
-      hitType: "pageview", 
-      page: location.pathname + location.search 
+    ReactGA.send({
+      hitType: "pageview",
+      page: location.pathname + location.search,
     });
   }, [location]);
 
@@ -62,9 +64,7 @@ export default function App() {
       >
         <Suspense
           fallback={
-            <div
-              className="flex justify-center items-center h-[50vh] text-slate-500 font-medium"
-            >
+            <div className="flex justify-center items-center h-[50vh] text-slate-500 font-medium">
               Loading Tool...
             </div>
           }
@@ -72,10 +72,19 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/bulk-photo-resizer" element={<BulkPhotoResizer />} />
-            <Route path="/social-media-imagetool" element={<SocialMediaImageTool />} />
+            <Route
+              path="/social-media-imagetool"
+              element={<SocialMediaImageTool />}
+            />
             <Route path="/image-to-pdf-tool" element={<ImageToPdfTool />} />
-            <Route path="/image-compressor-tool" element={<ImageCompressorTool />} />
-            <Route path="/youtube-thumbnail-downloader" element={<YoutubeThumbnailDownloader />} />
+            <Route
+              path="/image-compressor-tool"
+              element={<ImageCompressorTool />}
+            />
+            <Route
+              path="/youtube-thumbnail-downloader"
+              element={<YoutubeThumbnailDownloader />}
+            />
             <Route path="/merge-pdf" element={<PdfMergeTool />} />
             <Route path="/about" element={<About />} />
             <Route path="/donate" element={<Donate />} />
@@ -84,15 +93,15 @@ export default function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/case-converter" element={<CaseConverterTool />} />
-
-            <Route path="*" element={<NotFound />} /> 
+            <Route path="/biodata-maker" element={<BiodataMaker />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>
 
       <Footer />
 
-      <CookieBanner /> 
+      <CookieBanner />
     </div>
   );
 }

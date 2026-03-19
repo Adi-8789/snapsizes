@@ -58,6 +58,12 @@
   </url>
 
   <url>
+   <loc>https://snapsizes.vercel.app/biodata-maker</loc>
+   <lastmod>2024-05-20</lastmod>
+   <priority>0.80</priority>
+  </url>
+
+  <url>
     <loc>https://snapsizes.vercel.app/about</loc>
     <lastmod>2026-03-17</lastmod>
     <changefreq>weekly</changefreq>
