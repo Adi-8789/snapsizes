@@ -1,50 +1,63 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { 
-  Crop, Layers, Minimize2, FileText, Youtube, 
-  ShieldCheck, Zap, Lock, ArrowRight, Sparkles, Globe, 
-  Type, Combine, Heart, Users // 🟢 Added 'Users' and ensured others are here
+import {
+  Crop,
+  Layers,
+  Minimize2,
+  FileText,
+  Youtube,
+  ShieldCheck,
+  Zap,
+  Lock,
+  ArrowRight,
+  Sparkles,
+  Globe,
+  Type,
+  Combine,
+  Heart,
+  Users, // 🟢 Added 'Users' and ensured others are here
 } from "lucide-react";
 import SeoHead from "../components/SeoHead";
 
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "SnapSizes",
-  "url": "https://snapsizes.vercel.app/",
-  "description": "A privacy-first suite of free online image and text optimization tools including bulk resizers, compressors, and biodata makers.",
-  "potentialAction": {
+  name: "SnapSizes",
+  url: "https://snapsizes.vercel.app/",
+  description:
+    "A privacy-first suite of free online image and text optimization tools including bulk resizers, compressors, and biodata makers.",
+  potentialAction: {
     "@type": "SearchAction",
-    "target": "https://snapsizes.vercel.app/contact?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
+    target: "https://snapsizes.vercel.app/contact?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
 };
 
 const homeFaqs = [
   {
     "@type": "Question",
-    "name": "How many images can I resize or compress at once?",
-    "acceptedAnswer": {
+    name: "How many images can I resize or compress at once?",
+    acceptedAnswer: {
       "@type": "Answer",
-      "text": "Our Bulk Photo Resizer allows you to process up to 50 images in a single batch. This limit ensures high performance and prevents your web browser from crashing during heavy computation tasks."
-    }
+      text: "Our Bulk Photo Resizer allows you to process up to 50 images in a single batch. This limit ensures high performance and prevents your web browser from crashing during heavy computation tasks.",
+    },
   },
   {
     "@type": "Question",
-    "name": "Does SnapSizes work on mobile devices?",
-    "acceptedAnswer": {
+    name: "Does SnapSizes work on mobile devices?",
+    acceptedAnswer: {
       "@type": "Answer",
-      "text": "Absolutely. The entire SnapSizes platform is fully responsive and designed to work seamlessly on Android, iOS, and all modern desktop browsers."
-    }
+      text: "Absolutely. The entire SnapSizes platform is fully responsive and designed to work seamlessly on Android, iOS, and all modern desktop browsers.",
+    },
   },
   {
     "@type": "Question",
-    "name": "Is the Biodata Maker private?",
-    "acceptedAnswer": {
+    name: "Is the Biodata Maker private?",
+    acceptedAnswer: {
       "@type": "Answer",
-      "text": "Yes. Like all SnapSizes tools, the Biodata Maker processes your personal information locally in your browser. No data is ever uploaded to our servers or stored in any database."
-    }
-  }
+      text: "Yes. Like all SnapSizes tools, the Biodata Maker processes your personal information locally in your browser. No data is ever uploaded to our servers or stored in any database.",
+    },
+  },
 ];
 
 const TOOLS = [
@@ -55,7 +68,7 @@ const TOOLS = [
     path: "/biodata-maker",
     color: "text-rose-500",
     bg: "bg-rose-50",
-    badge: "New"
+    badge: "New",
   },
   {
     title: "Social Media Resizer",
@@ -63,7 +76,7 @@ const TOOLS = [
     icon: <Crop size={28} />,
     path: "/social-media-imagetool",
     color: "text-amber-500",
-    bg: "bg-amber-50"
+    bg: "bg-amber-50",
   },
   {
     title: "Bulk Photo Resizer",
@@ -71,7 +84,7 @@ const TOOLS = [
     icon: <Layers size={28} />,
     path: "/bulk-photo-resizer",
     color: "text-indigo-600",
-    bg: "bg-indigo-50"
+    bg: "bg-indigo-50",
   },
   {
     title: "Image Compressor",
@@ -79,7 +92,7 @@ const TOOLS = [
     icon: <Minimize2 size={28} />,
     path: "/image-compressor-tool",
     color: "text-emerald-600",
-    bg: "bg-emerald-50"
+    bg: "bg-emerald-50",
   },
   {
     title: "Image to PDF",
@@ -87,7 +100,7 @@ const TOOLS = [
     icon: <FileText size={28} />,
     path: "/image-to-pdf-tool",
     color: "text-amber-600",
-    bg: "bg-amber-50"
+    bg: "bg-amber-50",
   },
   {
     title: "YT Thumbnail Downloader",
@@ -95,7 +108,7 @@ const TOOLS = [
     icon: <Youtube size={28} />,
     path: "/youtube-thumbnail-downloader",
     color: "text-red-600",
-    bg: "bg-red-50"
+    bg: "bg-red-50",
   },
   {
     title: "Case Converter",
@@ -103,7 +116,7 @@ const TOOLS = [
     icon: <Type size={28} />,
     path: "/case-converter",
     color: "text-purple-600",
-    bg: "bg-purple-50"
+    bg: "bg-purple-50",
   },
   {
     title: "Merge PDF",
@@ -111,21 +124,23 @@ const TOOLS = [
     icon: <Combine size={28} />,
     path: "/merge-pdf",
     color: "text-blue-600",
-    bg: "bg-blue-50"
-  }
+    bg: "bg-blue-50",
+  },
 ];
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden">
-      
       <SeoHead
         title="SnapSizes - Free Online Image Tools (Privacy-First)"
         description="Resize, compress, and convert images online for free. Create professional marriage biodata instantly. 100% browser-based privacy."
         canonical="https://snapsizes.vercel.app/"
-        customFaqs={homeFaqs} 
+        customFaqs={homeFaqs}
       />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       {/* --- HERO SECTION --- */}
       <header className="bg-slate-900 pt-16 pb-24 px-4 text-center text-white relative overflow-hidden">
@@ -139,18 +154,26 @@ export default function Home() {
             <Sparkles size={14} /> 2026 Pro Suite
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
-            Professional Web Tools <br className="hidden md:block"/>
+            Professional Web Tools <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-400 to-orange-500">
               Without the Privacy Risk
             </span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            SnapSizes processes your data entirely on your device. Whether resizing photos or creating a sensitive marriage biodata, your information never leaves your browser.
+            SnapSizes processes your data entirely on your device. Whether
+            resizing photos or creating a sensitive marriage biodata, your
+            information never leaves your browser.
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm font-bold text-slate-300">
-            <span className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50"><ShieldCheck size={18} className="text-emerald-400"/> Zero-Upload Architecture</span>
-            <span className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50"><Zap size={18} className="text-amber-400"/> Browser-Side Processing</span>
+            <span className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+              <ShieldCheck size={18} className="text-emerald-400" /> Zero-Upload
+              Architecture
+            </span>
+            <span className="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+              <Zap size={18} className="text-amber-400" /> Browser-Side
+              Processing
+            </span>
           </div>
         </div>
       </header>
@@ -159,13 +182,13 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 lg:px-8 -mt-12 relative z-20 mb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {TOOLS.map((tool, idx) => (
-            <Link 
-              key={idx} 
-              to={tool.path} 
+            <Link
+              key={idx}
+              to={tool.path}
               className="group bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-linear-to-br from-slate-50 to-white opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
-              
+
               {tool.badge && (
                 <div className="absolute top-4 right-4 bg-amber-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded-md z-20 shadow-sm">
                   {tool.badge}
@@ -173,15 +196,23 @@ export default function Home() {
               )}
 
               <div className="relative z-10 flex flex-col h-full">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${tool.bg} ${tool.color}`}>
+                <div
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm ${tool.bg} ${tool.color}`}
+                >
                   {tool.icon}
                 </div>
-                <h3 className="text-xl font-extrabold text-slate-900 mb-3 uppercase tracking-tight">{tool.title}</h3>
+                <h3 className="text-xl font-extrabold text-slate-900 mb-3 uppercase tracking-tight">
+                  {tool.title}
+                </h3>
                 <p className="text-sm text-slate-500 leading-relaxed mb-8 flex-1 font-medium">
                   {tool.desc}
                 </p>
                 <div className="flex items-center text-sm font-bold text-amber-500 group-hover:text-amber-600 transition-colors mt-auto uppercase tracking-wider">
-                  Launch Tool <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  Launch Tool{" "}
+                  <ArrowRight
+                    size={16}
+                    className="ml-2 group-hover:translate-x-1 transition-transform"
+                  />
                 </div>
               </div>
             </Link>
@@ -197,7 +228,10 @@ export default function Home() {
               The Complete Suite for Online Optimization & Utility
             </h2>
             <p className="text-lg text-center max-w-3xl mx-auto mb-20 font-medium">
-              SnapSizes is a comprehensive, free online utility platform. Format images for social media, compress web assets, or generate a professional marriage biodata—all using secure, 100% client-side technology.
+              SnapSizes is a comprehensive, free online utility platform. Format
+              images for social media, compress web assets, or generate a
+              professional marriage biodata—all using secure, 100% client-side
+              technology.
             </p>
 
             {/* 🟢 THE UPGRADED "BUILT FOR" GRID (REPLACED GENERIC BULLETS) */}
@@ -212,9 +246,13 @@ export default function Home() {
                   <div className="w-12 h-12 bg-rose-500 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <Users size={24} />
                   </div>
-                  <h4 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">Privacy-First Families</h4>
+                  <h4 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">
+                    Privacy-First Families
+                  </h4>
                   <p className="text-xs text-slate-600 leading-relaxed font-bold opacity-80">
-                    Designed for families who need a <em>Marriage Biodata</em> without the risk of data leakage. Our zero-upload architecture ensures your details never leave your device.
+                    Designed for families who need a <em>Marriage Biodata</em>{" "}
+                    without the risk of data leakage. Our zero-upload
+                    architecture ensures your details never leave your device.
                   </p>
                 </div>
 
@@ -223,9 +261,13 @@ export default function Home() {
                   <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <Zap size={24} />
                   </div>
-                  <h4 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">Content Creators</h4>
+                  <h4 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">
+                    Content Creators
+                  </h4>
                   <p className="text-xs text-slate-600 leading-relaxed font-bold opacity-80">
-                    Built for YouTubers demand precision. Auto-crop images to exact platform aspect ratios bypassing the slow processing times of cloud-based editors.
+                    Built for YouTubers demand precision. Auto-crop images to
+                    exact platform aspect ratios bypassing the slow processing
+                    times of cloud-based editors.
                   </p>
                 </div>
 
@@ -234,9 +276,13 @@ export default function Home() {
                   <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <ShieldCheck size={24} />
                   </div>
-                  <h4 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">SEO Specialists</h4>
+                  <h4 className="text-lg font-black text-slate-900 mb-3 uppercase tracking-tight">
+                    SEO Specialists
+                  </h4>
                   <p className="text-xs text-slate-600 leading-relaxed font-bold opacity-80">
-                    Optimized for developers aiming for <strong>100/100 Core Web Vitals</strong>. Reduce payload weights by up to 80% ensuring lightning-fast load speeds.
+                    Optimized for developers aiming for{" "}
+                    <strong>100/100 Core Web Vitals</strong>. Reduce payload
+                    weights by up to 80% ensuring lightning-fast load speeds.
                   </p>
                 </div>
               </div>
@@ -244,25 +290,32 @@ export default function Home() {
 
             {/* --- FAQ SECTION --- */}
             <div className="mt-20 border-t border-slate-100 pt-16">
-              <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight text-center uppercase">Frequently Asked Questions</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight text-center uppercase">
+                Frequently Asked Questions
+              </h3>
               <div className="grid gap-6 not-prose">
                 {[
                   {
                     q: "Is SnapSizes really free to use?",
-                    a: "Yes. SnapSizes is a completely free online utility. No hidden costs or watermarks."
+                    a: "Yes. SnapSizes is a completely free online utility. No hidden costs or watermarks.",
                   },
                   {
                     q: "Is the Marriage Biodata Maker secure?",
-                    a: "Absolutely. Your personal details are never uploaded. We use local JavaScript processing, so your data stays on your device."
+                    a: "Absolutely. Your personal details are never uploaded. We use local JavaScript processing, so your data stays on your device.",
                   },
                   {
                     q: "Does SnapSizes work on mobile devices?",
-                    a: "Yes. The entire SnapSizes platform is fully responsive and designed to work on all modern mobile and desktop browsers."
-                  }
+                    a: "Yes. The entire SnapSizes platform is fully responsive and designed to work on all modern mobile and desktop browsers.",
+                  },
                 ].map((item, i) => (
-                  <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                  <div
+                    key={i}
+                    className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"
+                  >
                     <h4 className="font-bold text-slate-900 mb-2">{item.q}</h4>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.a}</p>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                      {item.a}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -270,13 +323,6 @@ export default function Home() {
           </div>
         </div>
       </article>
-
-      {/* 🟢 FOOTER (PROFESSIONALIZED) */}
-      <footer className="bg-white border-t border-slate-200 py-12 px-4 text-center">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-loose">
-          © 2026 SnapSizes • Privacy-First Web Utilities • Built for Performance & Security
-        </p>
-      </footer>
     </div>
   );
 }
