@@ -4,11 +4,9 @@ import {
   Briefcase,
   Users,
   Download,
-  Camera,
   Sparkles,
   ShieldCheck,
   Layout,
-  Moon,
   Eye,
   Trash2,
   Heart,
@@ -67,36 +65,35 @@ const biodataFaqs = [
 ];
 
 // ==========================================
-// 📄 1. THE NATIVE PDF STYLESHEET (LOCKED)
+// 📄 1. THE NATIVE PDF STYLESHEET (DYNAMIC TEMPLATE FIX)
 // ==========================================
 const pdfStyles = StyleSheet.create({
   page: {
-    padding: 40,
     backgroundColor: "#ffffff",
     fontFamily: "Helvetica",
     position: "relative",
   },
+  
+  // 🟢 TEMPLATE-SPECIFIC PAGE PADDINGS
   ganeshaPage: {
-    paddingTop: 280,
-    paddingLeft: 50,
-    paddingRight: 50,
-    paddingBottom: 60,
-    fontFamily: "Helvetica",
+    paddingTop: 260, // Pushed securely below Ganesha art
+    paddingLeft: 45,
+    paddingRight: 45,
+    paddingBottom: 50,
   },
   minimalPage: {
-    paddingTop: 70,
-    paddingLeft: 60,
-    paddingRight: 60,
-    paddingBottom: 70,
-    fontFamily: "Helvetica",
+    paddingTop: 60,
+    paddingLeft: 50,
+    paddingRight: 50,
+    paddingBottom: 40,
   },
   swastikPage: {
-    paddingTop: 110,
-    paddingLeft: 60,
-    paddingRight: 60,
-    paddingBottom: 110,
-    fontFamily: "Helvetica",
+    paddingTop: 100,
+    paddingLeft: 50,
+    paddingRight: 50,
+    paddingBottom: 65, // Extra room at bottom to avoid art border
   },
+
   absoluteBackground: {
     position: "absolute",
     top: 0,
@@ -106,53 +103,80 @@ const pdfStyles = StyleSheet.create({
     zIndex: -1,
   },
   bgImage: { width: "100%", height: "100%", objectFit: "stretch" },
-  header: {
-    borderBottom: "2px solid #f59e0b",
-    paddingBottom: 15,
-    marginBottom: 20,
+  
+  // 🟢 TEMPLATE-SPECIFIC HEADERS
+  headerGanesha: {
+    borderBottom: "1px solid #f59e0b",
+    paddingBottom: 4,
+    marginBottom: 8,
     alignItems: "center",
   },
-  name: {
-    fontSize: 24,
-    color: "#1e293b",
-    marginBottom: 4,
-    fontWeight: "bold",
-    textTransform: "uppercase",
+  headerStandard: {
+    borderBottom: "1px solid #f59e0b",
+    paddingBottom: 6,
+    marginBottom: 12,
+    alignItems: "center",
   },
-  subtitle: {
-    fontSize: 9,
+
+  title: {
+    fontSize: 11, // Reduced to prevent awkward text wrapping
     color: "#d97706",
     textTransform: "uppercase",
     letterSpacing: 2,
+    fontWeight: "bold",
   },
-  mainContent: { flexDirection: "row", gap: 20 },
-  leftCol: { width: "30%" },
-  rightCol: { width: "70%" },
-  photoBox: {
-    width: 110,
-    height: 140,
-    backgroundColor: "#f1f5f9",
-    border: "1px solid #e2e8f0",
-    marginBottom: 15,
-  },
-  photo: { width: "100%", height: "100%", objectFit: "cover" },
-  section: { marginBottom: 15 },
+  mainContent: { flexDirection: "column", gap: 10 },
+  section: { marginBottom: 4 },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 15,
     color: "#d97706",
-    borderBottom: "1px solid #fde68a",
-    paddingBottom: 3,
-    marginBottom: 8,
+    borderBottom: "0.5px solid #fde68a",
+    paddingBottom: 2,
+    marginBottom: 4,
     textTransform: "uppercase",
     fontWeight: "bold",
   },
-  row: { flexDirection: "row", marginBottom: 4 },
-  label: { width: 110, fontSize: 9, color: "#64748b", fontWeight: "bold" },
-  value: { flex: 1, fontSize: 9, color: "#1e293b" },
+  row: { flexDirection: "row", marginBottom: 7 },
+  label: { width: 120, fontSize: 10, color: "#64748b", fontWeight: "bold" },
+  value: { flex: 1, fontSize: 10, color: "#1e293b", lineHeight: 1.2 }, // Resized text to guarantee 1-page fit
+  
+  // 🟢 TEMPLATE-SPECIFIC FOOTERS (Watermarks)
+  footerMinimal: {
+    position: "absolute",
+    bottom: 10,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+  },
+  footerGanesha: {
+    position: "absolute",
+    bottom: 49, // Adjust this up or down specifically for Ganesha
+    left: 0,
+    right: 0,
+    textAlign: "center",
+  },
+  footerSwastik: {
+    position: "absolute",
+    bottom: 5, // Lifted high enough to sit clearly above the Swastik border art
+    left: 0,
+    right: 0,
+    textAlign: "center",
+  },
+  footerText: {
+    fontSize: 8,
+    color: "#475569", // Darker slate to stand out against backgrounds
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  brandName: {
+    color: "#d97706",
+    fontWeight: "bold",
+  }
 });
 
+// 🟢 BULLET-PROOF SMART DELETE LOGIC
 const DataRow = ({ label, value }) => {
-  if (!value || value.trim() === "") return null;
+  if (!value || String(value).trim() === "") return null;
   return (
     <View style={pdfStyles.row}>
       <Text style={pdfStyles.label}>{label}</Text>
@@ -162,14 +186,23 @@ const DataRow = ({ label, value }) => {
 };
 
 const BiodataPDFDocument = ({ data, template }) => {
-  let activeStyle = pdfStyles.page;
-  if (template === "ganesha") activeStyle = pdfStyles.ganeshaPage;
-  if (template === "minimal") activeStyle = pdfStyles.minimalPage;
-  if (template === "swastik") activeStyle = pdfStyles.swastikPage;
+  // Dynamic Layout Engine
+  let activePageStyle = pdfStyles.minimalPage;
+  let activeHeaderStyle = pdfStyles.headerStandard;
+  let activeFooterStyle = pdfStyles.footerMinimal;
+
+  if (template === "ganesha") {
+    activePageStyle = pdfStyles.ganeshaPage;
+    activeHeaderStyle = pdfStyles.headerGanesha;
+    activeFooterStyle = pdfStyles.footerGanesha;
+  } else if (template === "swastik") {
+    activePageStyle = pdfStyles.swastikPage;
+    activeFooterStyle = pdfStyles.footerSwastik;
+  }
 
   return (
     <Document title={`${data.fullName || "Marriage_Biodata"}`}>
-      <Page size="A4" style={activeStyle}>
+      <Page size="A4" style={activePageStyle}>
         <View style={pdfStyles.absoluteBackground}>
           {template === "ganesha" && (
             <PdfImage src={ganeshaBg} style={pdfStyles.bgImage} />
@@ -181,63 +214,54 @@ const BiodataPDFDocument = ({ data, template }) => {
             <PdfImage src={swastikBg} style={pdfStyles.bgImage} />
           )}
         </View>
-        <View style={pdfStyles.header}>
-          <Text style={pdfStyles.name}>{data.fullName || "FULL NAME"}</Text>
-          <Text style={pdfStyles.subtitle}>Marriage Biodata</Text>
+        
+        <View style={activeHeaderStyle}>
+          <Text style={pdfStyles.title}>Marriage Biodata</Text>
         </View>
+
         <View style={pdfStyles.mainContent}>
-          <View style={pdfStyles.leftCol}>
-            <View style={pdfStyles.photoBox}>
-              {data.photo && (
-                <PdfImage src={data.photo} style={pdfStyles.photo} />
-              )}
-            </View>
+          <View style={pdfStyles.section}>
+            <Text style={pdfStyles.sectionTitle}>Personal Details</Text>
+            <DataRow label="Name" value={data.fullName} />
+            <DataRow label="Gender" value={data.gender} />
+            <DataRow
+              label="Date of Birth"
+              value={
+                data.dob
+                  ? `${data.dob} ${data.age ? `(${data.age} Yrs)` : ""}`
+                  : ""
+              }
+            />
+            <DataRow label="Place of Birth" value={data.placeOfBirth} />
+            <DataRow label="Rashi" value={data.rashi} />
+            <DataRow label="Height" value={data.height} />
+            <DataRow label="Caste" value={data.caste} />
+            <DataRow label="Gotra" value={data.gotra} />
+            <DataRow label="Manglik" value={data.manglik} />
+            <DataRow label="Highest Education" value={data.education} />
           </View>
-          <View style={pdfStyles.rightCol}>
-            <View style={pdfStyles.section}>
-              <Text style={pdfStyles.sectionTitle}>
-                Personal & Astrological
-              </Text>
-              <DataRow
-                label="DOB"
-                value={
-                  data.dob
-                    ? `${data.dob} ${data.age ? `(${data.age} Yrs)` : ""}`
-                    : ""
-                }
-              />
-              <DataRow label="Time of Birth" value={data.timeOfBirth} />
-              <DataRow label="Place of Birth" value={data.placeOfBirth} />
-              <DataRow label="Height" value={data.height} />
-              <DataRow label="Blood Group" value={data.bloodGroup} />
-              <DataRow
-                label="Religion / Caste"
-                value={
-                  data.religion && data.caste
-                    ? `${data.religion} / ${data.caste}`
-                    : data.religion || data.caste
-                }
-              />
-              <DataRow label="Gotra" value={data.gotra} />
-              <DataRow label="Manglik Status" value={data.manglik} />
-              <DataRow label="Marital Status" value={data.maritalStatus} />
-            </View>
-            <View style={pdfStyles.section}>
-              <Text style={pdfStyles.sectionTitle}>Education & Career</Text>
-              <DataRow label="Education" value={data.education} />
-              <DataRow label="Profession" value={data.profession} />
-              <DataRow label="Workplace" value={data.company} />
-              <DataRow label="Annual Income" value={data.income} />
-              <DataRow label="Work Location" value={data.location} />
-            </View>
-            <View style={pdfStyles.section}>
-              <Text style={pdfStyles.sectionTitle}>Family Background</Text>
-              <DataRow label="Father's Name" value={data.fatherName} />
-              <DataRow label="Mother's Name" value={data.motherName} />
-              <DataRow label="Siblings" value={data.siblings} />
-              <DataRow label="Native Place" value={data.nativePlace} />
-            </View>
+          
+          <View style={pdfStyles.section}>
+            <Text style={pdfStyles.sectionTitle}>Family Details</Text>
+            <DataRow label="Father's Name" value={data.fatherName} />
+            <DataRow label="Father's Occupation" value={data.fatherOcc} />
+            <DataRow label="Mother's Name" value={data.motherName} />
+            <DataRow label="Mother's Occupation" value={data.motherOcc} />
+            <DataRow label="Total Brothers" value={data.brothers} />
+            <DataRow label="Total Sisters" value={data.sisters} />
           </View>
+          
+          <View style={pdfStyles.section}>
+            <Text style={pdfStyles.sectionTitle}>Contact Details</Text>
+            <DataRow label="Contact No" value={data.contactNo} />
+            <DataRow label="Address" value={data.address} />
+          </View>
+        </View>
+
+        <View style={activeFooterStyle} fixed>
+          <Text style={pdfStyles.footerText}>
+            Professionally generated via <Text style={pdfStyles.brandName}>snapsizes.vercel.app</Text>
+          </Text>
         </View>
       </Page>
     </Document>
@@ -249,34 +273,29 @@ const BiodataPDFDocument = ({ data, template }) => {
 // ==========================================
 export default function BiodataMaker() {
   const getInitialData = () => {
-    const saved = localStorage.getItem("biodata_v4_locked");
+    const saved = localStorage.getItem("biodata_v5_locked");
     return saved
       ? JSON.parse(saved)
       : {
           fullName: "",
+          gender: "",
           dob: "",
-          timeOfBirth: "",
-          placeOfBirth: "",
           age: "",
+          placeOfBirth: "",
+          rashi: "",
           height: "",
-          bloodGroup: "",
-          religion: "",
           caste: "",
           gotra: "",
           manglik: "",
-          maritalStatus: "",
           education: "",
-          profession: "",
-          company: "",
-          income: "",
-          location: "",
           fatherName: "",
           fatherOcc: "",
           motherName: "",
           motherOcc: "",
-          siblings: "",
-          nativePlace: "",
-          photo: null,
+          brothers: "",
+          sisters: "",
+          contactNo: "",
+          address: "",
         };
   };
 
@@ -287,7 +306,7 @@ export default function BiodataMaker() {
   const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("biodata_v4_locked", JSON.stringify(formData));
+    localStorage.setItem("biodata_v5_locked", JSON.stringify(formData));
   }, [formData]);
 
   useEffect(() => {
@@ -317,48 +336,36 @@ export default function BiodataMaker() {
     }));
   };
 
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () =>
-        setFormData((prev) => ({ ...prev, photo: reader.result }));
-      reader.readAsDataURL(file);
-    }
-  };
-
   const resetForm = () => {
     if (window.confirm("Clear all data?")) {
       const reset = {
         fullName: "",
+        gender: "",
         dob: "",
-        timeOfBirth: "",
-        placeOfBirth: "",
         age: "",
+        placeOfBirth: "",
+        rashi: "",
         height: "",
-        bloodGroup: "",
-        religion: "",
         caste: "",
         gotra: "",
         manglik: "",
-        maritalStatus: "",
         education: "",
-        profession: "",
-        company: "",
-        income: "",
-        location: "",
         fatherName: "",
         fatherOcc: "",
         motherName: "",
         motherOcc: "",
-        siblings: "",
-        nativePlace: "",
-        photo: null,
+        brothers: "",
+        sisters: "",
+        contactNo: "",
+        address: "",
       };
       setFormData(reset);
-      localStorage.removeItem("biodata_v4_locked");
+      localStorage.removeItem("biodata_v5_locked");
     }
   };
+
+  // 🟢 Helper for locking future dates
+  const todayString = new Date().toISOString().split("T")[0];
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20 overflow-hidden relative">
@@ -375,7 +382,6 @@ export default function BiodataMaker() {
       </div>
 
       <main className="relative z-20 max-w-7xl mx-auto px-4 pt-12 md:pt-20">
-        {/* 🟢 HERO SECTION (Top-most element now) */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-100 text-amber-600 text-[10px] font-black uppercase tracking-widest mb-6">
             <Sparkles size={14} /> 100% Private & Free
@@ -412,89 +418,60 @@ export default function BiodataMaker() {
             </div>
 
             <Section
-              title="Photo & Basic Details"
-              icon={<Camera className="text-indigo-500" size={18} />}
+              title="Personal Details"
+              icon={<User className="text-indigo-500" size={18} />}
             >
-              <div className="flex items-center gap-4 mb-8 p-6 bg-slate-50/50 rounded-2xl border border-slate-100">
-                {formData.photo ? (
-                  <img
-                    src={formData.photo}
-                    className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded-2xl bg-slate-200 flex items-center justify-center">
-                    <User className="text-slate-400" size={32} />
-                  </div>
-                )}
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">
-                    Profile Picture
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="text-xs font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-slate-900 file:text-white file:text-[10px] file:font-black cursor-pointer hover:file:bg-slate-800 transition-all"
-                  />
-                </div>
-              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <Input
-                  label="Full Name"
+                  label="Name"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="E.g. Rahul Kumar"
+                  placeholder="E.g. Nishi Kumari"
                 />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-amber-500"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                  </select>
+                </div>
                 <Input
                   label="Date of Birth"
                   name="dob"
                   type="date"
+                  max={todayString} 
                   value={formData.dob}
                   onChange={handleInputChange}
+                />
+                <Input
+                  label="Place of Birth"
+                  name="placeOfBirth"
+                  value={formData.placeOfBirth}
+                  onChange={handleInputChange}
+                  placeholder="E.g. Phusro, Jharkhand"
+                />
+                <Input
+                  label="Rashi"
+                  name="rashi"
+                  value={formData.rashi}
+                  onChange={handleInputChange}
+                  placeholder="E.g. Vrischika (Scorpio)"
                 />
                 <Input
                   label="Height"
                   name="height"
                   value={formData.height}
                   onChange={handleInputChange}
-                  placeholder="E.g. 5'11\"
-                />
-                <Input
-                  label="Blood Group"
-                  name="bloodGroup"
-                  value={formData.bloodGroup}
-                  onChange={handleInputChange}
-                  placeholder="E.g. B+"
-                />
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Marital Status
-                  </label>
-                  <select
-                    name="maritalStatus"
-                    value={formData.maritalStatus}
-                    onChange={handleInputChange}
-                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-amber-500"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="Never Married">Never Married</option>
-                    <option value="Divorced">Divorced</option>
-                  </select>
-                </div>
-              </div>
-            </Section>
-
-            <Section
-              title="Religious & Astrological"
-              icon={<Moon className="text-purple-500" size={18} />}
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Input
-                  label="Religion"
-                  name="religion"
-                  value={formData.religion}
-                  onChange={handleInputChange}
+                  placeholder="E.g. 5 feet 2 inches"
                 />
                 <Input
                   label="Caste"
@@ -508,65 +485,27 @@ export default function BiodataMaker() {
                   value={formData.gotra}
                   onChange={handleInputChange}
                 />
-                <Input
-                  label="Place of Birth"
-                  name="placeOfBirth"
-                  value={formData.placeOfBirth}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Time of Birth"
-                  name="timeOfBirth"
-                  value={formData.timeOfBirth}
-                  onChange={handleInputChange}
-                  placeholder="E.g. 10:45 AM"
-                />
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Manglik Status
+                    Manglik
                   </label>
                   <select
                     name="manglik"
                     value={formData.manglik}
                     onChange={handleInputChange}
-                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold outline-none"
+                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-amber-500"
                   >
                     <option value="">Select Option</option>
-                    <option value="Non-Manglik">Non-Manglik</option>
-                    <option value="Manglik">Manglik</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
                   </select>
                 </div>
-              </div>
-            </Section>
-
-            <Section
-              title="Education & Career"
-              icon={<Briefcase className="text-blue-500" size={18} />}
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Input
-                  label="Education"
+                <TextArea
+                  label="Highest Education"
                   name="education"
                   value={formData.education}
                   onChange={handleInputChange}
-                />
-                <Input
-                  label="Profession"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Company"
-                  name="company"
-                  value={formData.company}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Annual Income"
-                  name="income"
-                  value={formData.income}
-                  onChange={handleInputChange}
+                  placeholder="1. Matriculation...&#10;2. Intermediate..."
                 />
               </div>
             </Section>
@@ -583,22 +522,60 @@ export default function BiodataMaker() {
                   onChange={handleInputChange}
                 />
                 <Input
+                  label="Father's Occupation"
+                  name="fatherOcc"
+                  value={formData.fatherOcc}
+                  onChange={handleInputChange}
+                />
+                <Input
                   label="Mother's Name"
                   name="motherName"
                   value={formData.motherName}
                   onChange={handleInputChange}
                 />
                 <Input
-                  label="Siblings"
-                  name="siblings"
-                  value={formData.siblings}
+                  label="Mother's Occupation"
+                  name="motherOcc"
+                  value={formData.motherOcc}
                   onChange={handleInputChange}
                 />
-                <Input
-                  label="Native Place"
-                  name="nativePlace"
-                  value={formData.nativePlace}
+                <TextArea
+                  label="Total Brothers"
+                  name="brothers"
+                  value={formData.brothers}
                   onChange={handleInputChange}
+                  placeholder="1. Name (Profession)&#10;2. Name (Profession)"
+                />
+                <TextArea
+                  label="Total Sisters"
+                  name="sisters"
+                  value={formData.sisters}
+                  onChange={handleInputChange}
+                  placeholder="1. Name (Profession)"
+                />
+              </div>
+            </Section>
+
+            <Section
+              title="Contact Details"
+              icon={<Briefcase className="text-emerald-500" size={18} />}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Input
+                  label="Contact No"
+                  name="contactNo"
+                  type="tel" 
+                  maxLength="10"
+                  value={formData.contactNo}
+                  onChange={handleInputChange}
+                  placeholder="10-digit mobile number"
+                />
+                <TextArea
+                  label="Address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="Permanent Address: ...&#10;Correspondence Address: ..."
                 />
               </div>
             </Section>
@@ -716,34 +693,7 @@ export default function BiodataMaker() {
           />
         </section>
 
-        {/* 🟢 CROSS-TOOL PROMOTION */}
-        <section className="mt-24 bg-slate-900 rounded-[3rem] p-10 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-          <Heart
-            className="mx-auto text-amber-500 mb-6"
-            size={48}
-            fill="currentColor"
-          />
-          <h3 className="text-3xl font-black mb-4 uppercase tracking-tight">
-            Need a Perfect Photo?
-          </h3>
-          <p className="text-slate-400 font-medium mb-8 max-w-xl mx-auto">
-            Use our Bulk Photo Resizer to crop your profile picture to the
-            perfect 4x6 ratio before adding it to your biodata.
-          </p>
-          <a
-            href="/bulk-photo-resizer"
-            className="inline-block bg-white text-slate-900 px-10 py-4 rounded-full font-black text-xs uppercase hover:scale-105 transition-all shadow-xl group"
-          >
-            Launch Resizer{" "}
-            <ArrowRight
-              size={14}
-              className="inline-block ml-1 group-hover:translate-x-1 transition-transform"
-            />
-          </a>
-        </section>
-
-        {/* 🟢 FULL SEO ARTICLE SECTION (LOCKED) */}
+        {/* 🟢 FULL SEO ARTICLE SECTION */}
         <article className="mt-24 max-w-4xl mx-auto border-t border-slate-200 pt-20 pb-20">
           <div className="prose prose-slate max-w-none text-slate-600">
             <h2 className="text-4xl font-black text-slate-900 mb-8 tracking-tight text-center uppercase">
@@ -923,6 +873,20 @@ function Input({ label, ...props }) {
       </label>
       <input
         className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-amber-500 focus:bg-white transition-all placeholder:text-slate-300"
+        {...props}
+      />
+    </div>
+  );
+}
+
+function TextArea({ label, ...props }) {
+  return (
+    <div className="space-y-2 sm:col-span-2">
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+        {label}
+      </label>
+      <textarea
+        className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-amber-500 focus:bg-white transition-all placeholder:text-slate-300 min-h-25 resize-y"
         {...props}
       />
     </div>
