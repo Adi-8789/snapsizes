@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import {
   User,
   Briefcase,
@@ -9,11 +9,9 @@ import {
   Layout,
   Eye,
   Trash2,
-  Heart,
   Star,
   FileText,
   CheckCircle2,
-  ArrowRight,
   X,
   Loader2,
 } from "lucide-react";
@@ -223,7 +221,6 @@ const BiodataPDFDocument = ({ data, template }) => {
           <View style={pdfStyles.section}>
             <Text style={pdfStyles.sectionTitle}>Personal Details</Text>
             <DataRow label="Name" value={data.fullName} />
-            <DataRow label="Gender" value={data.gender} />
             <DataRow
               label="Date of Birth"
               value={
@@ -278,7 +275,6 @@ export default function BiodataMaker() {
       ? JSON.parse(saved)
       : {
           fullName: "",
-          gender: "",
           dob: "",
           age: "",
           placeOfBirth: "",
@@ -340,7 +336,6 @@ export default function BiodataMaker() {
     if (window.confirm("Clear all data?")) {
       const reset = {
         fullName: "",
-        gender: "",
         dob: "",
         age: "",
         placeOfBirth: "",
@@ -427,23 +422,9 @@ export default function BiodataMaker() {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="E.g. Nishi Kumari"
+                  placeholder="E.g. Type your name here "
                 />
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Gender
-                  </label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none focus:border-amber-500"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
-                  </select>
-                </div>
+                
                 <Input
                   label="Date of Birth"
                   name="dob"
@@ -457,7 +438,7 @@ export default function BiodataMaker() {
                   name="placeOfBirth"
                   value={formData.placeOfBirth}
                   onChange={handleInputChange}
-                  placeholder="E.g. Phusro, Jharkhand"
+                  placeholder="E.g. Patna, Bihar"
                 />
                 <Input
                   label="Rashi"
